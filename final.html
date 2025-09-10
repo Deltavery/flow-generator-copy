@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet'>
+    <link rel="stylesheet" href="neonstylesheet.css">
+</head>
+
+<body>
+
+    <!-- Navigation Bar -->
+    <div class = "navBar">
+        <img src = "logo.png" class = "logo"> 
+        Noodle Puzzle Generator
+        <div style = "width:5%"></div>
+        <a href="index.html" class="divButton">Generate Puzzles</a>
+        <a href="puzzles.html?difficulty=Tutorial" class="divButton">Review Puzzles</a>
+        <a href="final.html" class="divButton activeButton">Final Puzzles</a>
+        
+    </div>
+
+    <br>
+
+    <!-- Section containing the open as image option -->
+    <div class = "genericBar">
+        <div class="divButton" onclick="download_pressed()">Save as Image</div>
+        <div class="divButton" onclick="show_all_pressed()">Show all solutions</div>
+    </div>
+
+    <br>
+
+    <div id = "screenshotZone">
+
+    <div id = "tutorialSection">
+        <!-- Displays which difficulty is selected and the amount saved/finalised-->
+        <div id = "puzzleReviewTitleTutorial" style="font-size: 30px; text-decoration:underline">Loading...</div>
+        <div id = "puzzleReviewTitleQuotaTutorial" style="font-size: 30px; text-decoration:underline"></div>
+        <br>
+        <!-- Contains all puzzles displayed-->
+        <div id = "puzzleReviewContainerTutorial" class = "rowWrap"></div>
+    </div>
+
+    <div id = "easySection">
+        <div id = "puzzleReviewTitleEasy" style="font-size: 30px; text-decoration:underline"></div>
+        <div id = "puzzleReviewTitleQuotaEasy" style="font-size: 30px; text-decoration:underline"></div>
+        <br>
+        <div id = "puzzleReviewContainerEasy" class = "rowWrap"></div>
+    </div>
+
+    <div id = "mediumSection">
+        <div id = "puzzleReviewTitleMedium" style="font-size: 30px; text-decoration:underline"></div>
+        <div id = "puzzleReviewTitleQuotaMedium" style="font-size: 30px; text-decoration:underline"></div>
+        <br>
+        <div id = "puzzleReviewContainerMedium" class = "rowWrap"></div>
+    </div>
+
+    <div id = "hardSection">
+        <div id = "puzzleReviewTitleHard" style="font-size: 30px; text-decoration:underline"></div>
+        <div id = "puzzleReviewTitleQuotaHard" style="font-size: 30px; text-decoration:underline"></div>
+        <br>
+        <div id = "puzzleReviewContainerHard" class = "rowWrap"></div>
+    </div>
+
+    </div>
+
+    <!-- Default puzzle display that can be copied later (same as review screen, but without right column)-->
+    <div id = "puzzleReviewDefault" class = "puzzleReviewDisplay">
+            
+        <!-- Left column of puzzle review info-->
+        <div class = "puzzleReviewLeft">
+
+            <div class = "puzzleReviewID">Puzzle ID: Default</div>
+
+            <br>
+
+            Noodle Colours:
+            <div class = "puzzleReviewNoodles"></div>
+
+            <br>
+
+            <div class = "puzzleReviewNoodleCount"></div>
+
+            <br>
+
+            <div class = "divButton puzzleReviewToggleButton">Toggle Solution</div>
+
+            <br>
+
+            <div class="centreRow">
+                <div class="divButton puzzleReviewSwapUpButton" style="font-size:50px; width:40%">&#8592</div>
+                <div class="divButton puzzleReviewSwapDownButton" style="font-size:50px; width:40%">&#8594</div>
+            </div>
+
+        </div>
+
+        <!-- Grid for puzzle review -->
+        <div class = "puzzleReviewGrid">
+            <div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div>
+            <div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div>
+            <div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div>
+            <div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div>
+            <div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div>
+            <div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div>
+            <div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div>
+            <div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div>
+            <div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div>
+        </div>
+
+    </div>
+
+
+<!--Utility (doesnt affect page) Functions Script-->
+<script src="utilityfunctions.js"></script>
+
+<!--Installing Database Script-->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<!--Installing Screen Capture Script-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+<!--Database Code-->
+<script src="databasescript.js"></script>
+
+<!--Main code-->
+<script>
+
+// -----===== GLOBAL VARIABLES =====-----
+
+// array with 4 elements
+// each is an array of puzzle objects corresponding to a difficulty (Tutorial, Easy, Medium, Hard)
+let globalPuzzles = [];
+
+// quotas for amount of saved and finalised puzzles
+// used for titles of the sections
+// in order [Tutorial, Easy, Medium, Hard]
+const globalSavedQuotas = [13,16,30,7]; 
+const globalFinalisedQuotas = [13,16,30,7]; 
+
+// array with  4 elements
+// tracks whether solutions are toggled on or off
+let globalSolutionToggles = [];
+
+// stores all of the grid elements used for displaying the puzzle grids
+// only used by the button that turns all solutions on
+// contains an array for each difficulty
+let globalGridElementsArray = [[],[],[],[]];
+
+// -----===== MAIN PROGRAM =====-----
+
+on_load();
+
+// -----===== FUNCTIONS =====-----
+
+// runs on the page loading
+async function on_load (difficulty) {
+
+    let difficulties = ["Tutorial","Easy","Medium","Hard"];
+
+    // loads globalPuzzles
+    for (let i = 0; i < difficulties.length; i++){
+        globalPuzzles.push((await get_puzzles_of_difficulty(difficulties[i])).filter(x => x.finalised == true));
+    }
+
+    // sets every solution to be toggled off by default
+    for (let i = 0; i < 4; i++){
+        let newArray = [];
+        for (let j = 0; j < globalPuzzles[i].length; j++){
+            newArray.push(false);
+        }
+        globalSolutionToggles.push(newArray);
+    }
+
+    // Loads displays
+    for (let i = 0; i < difficulties.length; i++){
+        update_display(difficulties[i]);
+    }
+    
+}
+
+// updates the display of the given difficulty
+function update_display(difficulty){
+
+    let difficultyIndex = ["Tutorial","Easy","Medium","Hard"].indexOf(difficulty);
+
+    // puzzles corresponding to this difficulty
+    let puzzles = globalPuzzles[difficultyIndex];
+
+    // the div element containing all the display divs
+    let containerDiv = document.getElementById("puzzleReviewContainer" + difficulty);
+
+    console.log(difficulty);
+
+    // clears the container div of anything there before
+    containerDiv.innerHTML = "";
+
+    // updates the title
+    update_title(difficultyIndex,difficulty);
+
+    // tracks whether to go to a new line after 
+    let goToNewLineAfter = false;
+
+    // for each puzzle:
+    for (let i = 0; i < puzzles.length; i++){
+
+        // shorthands
+        let puzzle = puzzles[i];
+        let noodles = puzzle.noodles;
+
+        // CREATE A REVIEW ELEMENT FOR THE PUZZLE:
+
+        // clones the review display template
+        // true parameter means it also copies all its children
+        let newReviewDiv = document.getElementById("puzzleReviewDefault").cloneNode(true);
+        newReviewDiv.id = "reviewDiv" + String(i);
+
+        // adds it to the page
+        containerDiv.appendChild(newReviewDiv);
+
+        // FOR LEFT COLUMN:
+        let leftColumnDiv = newReviewDiv.firstElementChild;
+
+        // updates puzzle ID text
+        let puzzleIdDisplay = leftColumnDiv.getElementsByClassName("puzzleReviewID").item(0);
+        puzzleIdDisplay.innerHTML = "Puzzle ID: " + String(puzzle.puzzleId);
+
+        // updates list of noodle colours
+        let noodleColoursDisplay = leftColumnDiv.getElementsByClassName("puzzleReviewNoodles").item(0);
+
+        // array of unique noodle colours in the puzzle
+        // their lengths
+        // the amount of times they appear at the corresponding index in colourLengths
+        let uniqueColours = [];
+        let colourLengths = [];
+        let colourCounts = [];
+        for (let j = 0; j < noodles.length; j++){
+            let noodle = noodles[j];
+            if (!uniqueColours.includes(noodle.colour)) {
+                uniqueColours.push(noodle.colour);
+                colourLengths.push(noodle.length);
+                colourCounts.push(1);
+            } else {
+                let colourIndex = uniqueColours.indexOf(noodle.colour);
+                colourCounts[colourIndex] = colourCounts[colourIndex] + 1;
+            }
+        }
+
+        // for each unique colour, adds a line to the display (in the corresponding colour)
+        for (let j = 0; j < uniqueColours.length; j++){
+            let newRow = document.createElement("div");
+            newRow.innerHTML = colourCounts[j] + "x " + get_colour_display_name(uniqueColours[j]) + " (" + colourLengths[j] + ")<br>";
+            // if its an obstacle, says that instead of the colour
+            if (colourLengths[j] == 1){
+                newRow.innerHTML = colourCounts[j] + "x Obstacle";
+                newRow.style.color = "white";
+            }
+            newRow.style.backgroundColor = uniqueColours[j];
+            noodleColoursDisplay.appendChild(newRow);
+        }
+
+        // updates count of noodles
+        let noodleCountDisplay = leftColumnDiv.getElementsByClassName("puzzleReviewNoodleCount").item(0);
+        noodleCountDisplay.innerHTML = "Total: " + String(noodles.length) + " noodles";
+
+        // FOR GRID:
+        let gridDiv = leftColumnDiv.nextElementSibling;
+
+        // corresponding elements to the 2d grid array (also a 2d array)
+        // note this is 0-8 indexed unlike the grid which is 1-9 indexed
+        let gridElements = [];
+        let currentElement = gridDiv.firstElementChild;
+        for (let j = 0; j < 9; j++){
+            let newRow = [];
+            for (let k = 0; k < 9; k++){
+                newRow.push(currentElement);
+                currentElement = currentElement.nextElementSibling;
+            }
+            gridElements.push(newRow);
+        }
+
+        // adds it to the list of global grid elements
+        // this is only used to have a button to turn all the solutions on
+        globalGridElementsArray[difficultyIndex].push(gridElements);
+
+        // updates the tiles to show the puzzle unsolved
+        show_grid_unsolved(puzzle, gridElements);
+
+        // Updates toggle solution button onclick
+        let toggleSolButton = leftColumnDiv.getElementsByClassName("puzzleReviewToggleButton").item(0);
+        toggleSolButton.onclick = function () {
+            toggle_sol_pressed(puzzle,toggleSolButton,gridElements,difficultyIndex);
+        }
+
+        // Updates toggle solution button to not appear when the page is saved as a png
+        toggleSolButton.setAttribute("data-html2canvas-ignore",true);
+
+        // updates swap puzzle order buttons onclick
+        let upButton = leftColumnDiv.getElementsByClassName("puzzleReviewSwapUpButton").item(0);
+        upButton.onclick = function () {
+            update_order_pressed(puzzle,"up",difficultyIndex);
+        }
+        let downButton = leftColumnDiv.getElementsByClassName("puzzleReviewSwapDownButton").item(0);
+        downButton.onclick = function () {
+            update_order_pressed(puzzle,"down",difficultyIndex);
+        }
+
+
+
+    }
+
+    // updates the title of the given difficulty with amount saved, and amount finalised
+    function update_title (difficultyIndex,difficulty){
+
+        // amount of finalised puzzles
+        let finalisedCount = 0;
+
+        // for each puzzle, increments finalisedCount if applicable (all of them are saved)
+        for (let i = 0; i < globalPuzzles[difficultyIndex].length; i++){
+            if (globalPuzzles[difficultyIndex][i].finalised == true){
+                finalisedCount = finalisedCount + 1;
+            }
+        }
+
+        // updates title text
+        document.getElementById("puzzleReviewTitle" + difficulty).innerHTML = difficulty;
+        document.getElementById("puzzleReviewTitleQuota" + difficulty).innerHTML = " (" + String(finalisedCount) + "/" + globalFinalisedQuotas[difficultyIndex] + " Finalised)";
+        document.getElementById("puzzleReviewTitleQuota" + difficulty).setAttribute("data-html2canvas-ignore",true);
+    }
+
+}
+
+// runs when the toggle solution button is pressed
+function toggle_sol_pressed (puzzle,toggleSolButton, gridElements, difficultyIndex) {
+
+    let puzzleIndex = globalPuzzles[difficultyIndex].indexOf(puzzle);
+
+    // whether it is now toggled on or off
+    let newToggleState = !globalSolutionToggles[difficultyIndex][puzzleIndex];
+
+    // updates the saved toggle state
+    globalSolutionToggles[difficultyIndex][puzzleIndex] = newToggleState;
+
+    if (newToggleState == true){
+        show_grid_solved(puzzle,gridElements);
+    } else {
+        show_grid_unsolved(puzzle, gridElements);
+    }
+
+}
+
+// updates the given grid to be the solved puzzle
+function show_grid_solved (puzzle, gridElements) {
+
+    // note this is copy pasted from the generated version
+    // so just adapting to the variable names here
+    let solutionGrid = puzzle.grid;
+    let elementGrid = gridElements;
+    let noodleList = puzzle.noodles;
+
+    // note going 0-8, but solution grid uses 1-9 so +1s included later
+    for (let i = 0; i < 9; i++){
+        for (let j = 0; j < 9; j++){
+
+            // each string in the grid starts with a number to say which order they're in
+            let tileNum = parseInt(solutionGrid[i+1][j+1]);
+
+            // removes number to get the icon
+            let tileIcon = solutionGrid[i+1][j+1].replace(/[0-9]/g, '');
+
+            // sets the colour of the tile to be the corresponding colour of the noodle with that icon
+            if (tileIcon != "X"){
+                let tileColour = noodleList[noodleList.map(x => x.icon).indexOf(tileIcon)].colour;
+                elementGrid[i][j].style.backgroundColor = tileColour;
+            }
+            
+            // checking adjacent tiles to see what string it should contain
+            let adjacentTiles = get_adjacent(solutionGrid,i+1,j+1);
+
+            // contains two numbers based off where the noodle went before and after the current tile
+            // 4 is default value and will only remain if it is the start or end
+            // 0 = down, 1 = up, 2 = right, 3 = left
+            let beforeAfter = [4,4];
+            for (let k = 0; k < 4; k++){
+
+                // if the tile is the same noodle (icon)
+                if (adjacentTiles[k].replace(/[0-9]/g, '') == tileIcon){
+
+                    // checks for tiles before or after in the noodle
+                    if (parseInt(adjacentTiles[k]) == (tileNum-1)){
+                        beforeAfter[0] = k;
+                    } else if (parseInt(adjacentTiles[k]) == (tileNum+1)){
+                        beforeAfter[1] = k;
+                    }
+                }
+            }
+
+            // if it IS the start or end of a noodle
+            // sets string to the noodles length
+            if (beforeAfter.includes(4)) {
+                for (let k = 1; k < noodleList.length; k++){
+                    if (noodleList[k].icon == tileIcon){
+                        elementGrid[i][j].innerHTML = String(noodleList[k].length);
+                    }
+                }
+
+            // if it IS NOT the start or the end, looks up the corresponding line to draw
+            // sets the inner html to that string
+            } else {
+
+                // array that correlates beforeAfter to a unicode symbol with the right line
+                let correspondingStrings = [[[0,1],"&#x2502"],[[0,2],"&#x250C"],[[0,3],"&#x2510"],[[1,0],"&#x2502"],[[1,2],"&#x2514"],[[1,3],"&#x2518"],[[2,0],"&#x250C"],[[2,1],"&#x2514"],[[2,3],"&#x2500"],[[3,0],"&#x2510"],[[3,1],"&#x2518"],[[3,2],"&#x2500"]];
+                
+                // loops through each possible line
+                for (let k = 0; k < 12; k++){
+                    if (are_arrays_equal(beforeAfter,correspondingStrings[k][0])){
+                        elementGrid[i][j].innerHTML = correspondingStrings[k][1];
+                    }
+                }
+            }
+        }
+    }
+
+}
+
+// updates the given grid to be the unsolved puzzle
+function show_grid_unsolved (puzzle, gridElements) {
+
+    // 2d array of SOLVED grid (still has correct "X"s for unsolved puzzle)
+    let grid = puzzle.grid;
+
+    // for every tile (note i and j are 1-9 indexed, while gridElements is 0-9 indexed)
+    // fills in blocked off spaces, and rest are coloured lightgrey
+    for (let i = 1; i < 10; i++){
+        for (let j = 1; j < 10; j++){
+
+            if (grid[i][j] == "X"){
+                // -1 to account for difference in indexing
+                gridElements[i-1][j-1].style.backgroundColor = "black";
+            } else {
+                gridElements[i-1][j-1].style.backgroundColor = "lightgrey";
+            }
+
+            // clears any text that was there previously
+            gridElements[i-1][j-1].innerHTML = "";
+        }
+    }
+
+    // list of noodle objects for the current puzzle
+    let noodles = puzzle.noodles;
+
+    // colouring in the noodle starts and ends with the corresponding colour
+    for (let i = 0; i < noodles.length; i++){
+        let noodle = noodles[i];
+        let start = noodle.start;
+        let end = noodle.end;
+        // -1 because need to convert from 1-9 index in 11x11 grid to 0-8 array
+        gridElements[start[0]-1][start[1]-1].style.backgroundColor = noodle.colour;
+        gridElements[end[0]-1][end[1]-1].style.backgroundColor = noodle.colour;
+        gridElements[start[0]-1][start[1]-1].innerHTML = String(noodle.length);
+        gridElements[end[0]-1][end[1]-1].innerHTML = String(noodle.length);
+        // Sets obstacle text to be black
+        if (noodle.length == 1){
+            gridElements[start[0]-1][start[1]-1].style.color = "black";
+            gridElements[end[0]-1][end[1]-1].style.color = "black";
+        }
+    }
+}
+
+
+// runs when the "download" button is pressed
+// converts the puzzles to a png and downloads it
+// uses html2canvas which is installed before this script
+async function download_pressed () {
+
+    let canvas = await html2canvas(document.getElementById("screenshotZone"), {backgroundColor:"darkgrey", windowWidth: "760px"});
+
+    var imgURL = canvas.toDataURL("image/png");
+
+    let newWindow = window.open();
+    newWindow.document.write('<img src="' + imgURL + '" />');
+
+}
+
+// runs when the "show all solutions" button is pressed
+// sets all puzzles to be showing their solutions
+function show_all_pressed () {
+
+    let difficulties = ["Tutorial","Easy","Medium","Hard"];
+
+    for (let i = 0; i < difficulties.length; i++){
+
+        // gets puzzles of corresponding difficulty
+        let puzzles = globalPuzzles[i];
+
+        // for each puzzle
+        for (let j = 0; j < puzzles.length; j++){
+
+            // updates the grid
+            show_grid_solved(puzzles[j], globalGridElementsArray[i][j]);
+
+            // updates the boolean keeping track of if its showing the solved version
+            globalSolutionToggles[i][j] = true;
+        }
+
+        
+    }
+
+}
+
+// runs when the up or down arrow to swap puzzle order is pressed
+function update_order_pressed(puzzle,direction,difficultyIndex){
+
+    // gets finalised puzzles
+    let puzzlesVisible = globalPuzzles[difficultyIndex].filter((p) => (p.finalised == true));
+
+    let puzzle1Index = puzzlesVisible.indexOf(puzzle);
+    let puzzle2Index
+
+    if (direction == "up"){
+
+        // if its already at the top, does nothing
+        if (puzzle1Index == 0){
+            console.log("already at top");
+            return;
+        }
+
+        // gets the puzzle before it
+        puzzle2Index = puzzle1Index - 1;
+
+    } else {
+
+        // if its already at the bottom, does nothing
+        if (puzzle1Index == (puzzlesVisible.length - 1)){
+            console.log("already at bottom");
+            return;
+        }
+        
+        // gets the puzzle after it
+        puzzle2Index = puzzle1Index + 1;
+
+    }
+
+    let puzzle2 = puzzlesVisible[puzzle2Index];
+
+    // swaps position in local array
+    let puzzle1GlobalIndex = globalPuzzles[difficultyIndex].indexOf(puzzle);
+    let puzzle2GlobalIndex = globalPuzzles[difficultyIndex].indexOf(puzzle2);
+    [globalPuzzles[difficultyIndex][puzzle1GlobalIndex], globalPuzzles[difficultyIndex][puzzle2GlobalIndex]] = [globalPuzzles[difficultyIndex][puzzle2GlobalIndex], globalPuzzles[difficultyIndex][puzzle1GlobalIndex]];
+
+    // updates database
+    let tempOrderNumHolder = puzzle.orderNum;
+    // updates this puzzles orderNum
+    update_puzzle_ordernum(puzzle.puzzleId, puzzle2.orderNum);
+    puzzle.orderNum = puzzle2.orderNum;
+    // updates the puzzle its swapping with's orderNum
+    update_puzzle_ordernum(puzzle2.puzzleId,tempOrderNumHolder);
+    puzzle2.orderNum = tempOrderNumHolder;
+
+    // updates the display
+    let difficulties = ["Tutorial","Easy","Medium","Hard"];
+    update_display(difficulties[difficultyIndex]);
+
+}
+
+
+
+</script>
+
+</body>
+</html> 

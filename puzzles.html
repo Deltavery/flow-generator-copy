@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet'>
+    <link rel="stylesheet" href="neonstylesheet.css">
+</head>
+
+<body>
+
+    <!-- Navigation Bar -->
+    <div class = "navBar">
+        <img src = "logo.png" class = "logo"> 
+        Noodle Puzzle Generator
+        <div style = "width:5%"></div>
+        <a href="index.html" class="divButton">Generate Puzzles</a>
+        <a href="puzzles.html?difficulty=Tutorial" class="divButton activeButton">Review Puzzles</a>
+        <a href="final.html" class="divButton">Final Puzzles</a>
+    </div>
+
+    <br>
+
+    <input type="text" id="passcodeEntry" placeholder="Enter passcode" style="font-size:40px; display:none" oninput="passcode_typed()">
+
+    <div id = "passwordRestricted">
+
+    <div class = "row">
+
+        <!-- Buttons for selecting difficulty to view -->
+        <div class = "reviewDifficultyBar">
+            Select difficulty to review:
+            <a id="reviewDifficultyButtonTutorial" href="puzzles.html?difficulty=Tutorial" class="divButton" >Tutorial</a>
+            <a id="reviewDifficultyButtonEasy" href="puzzles.html?difficulty=Easy" class="divButton">Easy</a>
+            <a id="reviewDifficultyButtonMedium" href="puzzles.html?difficulty=Medium" class="divButton">Medium</a>
+            <a id="reviewDifficultyButtonHard" href="puzzles.html?difficulty=Hard" class="divButton">Hard</a>
+        </div>
+
+        <!-- Entry for choosing username to review as-->
+        <div class = "reviewUsernameBar">
+            Enter username:   
+            <input type="text" id="usernameEntry" oninput="username_typed()">
+        </div>
+
+    </div>
+
+    <br>
+
+    <!-- Section containing the show finalised checkbox -->
+    <div class = "genericBar">
+        Show finalised puzzles?
+        <input type="checkbox" id="showFinalisedCheckbox" onclick="update_display()">
+    </div>
+
+    <br>
+
+    <!-- Displays which difficulty is selected and the amount saved/finalised-->
+    <div id = "puzzleReviewTitle" style="font-size: 30px; text-decoration:underline">Loading...</div>
+
+    <br>
+
+    <!-- Contains all puzzles displayed-->
+    <div id = "puzzleReviewContainer"></div>
+
+
+    <!-- Default puzzle display that can be copied later-->
+    <div id = "puzzleReviewDefault" class = "puzzleReviewDisplay">
+            
+        <!-- Left column of puzzle review info-->
+        <div class = "puzzleReviewLeft">
+
+            <div class = "puzzleReviewID">Puzzle ID: Default</div>
+
+            <br>
+
+            Noodle Colours:
+            <div class = "puzzleReviewNoodles"></div>
+
+            <br>
+
+            <div class = "puzzleReviewNoodleCount"></div>
+
+            <br>
+
+            <div class = "divButton puzzleReviewToggleButton">Toggle Solution</div>
+
+            <br>
+
+            <div class="centreRow">
+                <div class="divButton puzzleReviewSwapUpButton" style="font-size:50px; width:40%">&#8593</div>
+                <div class="divButton puzzleReviewSwapDownButton" style="font-size:50px; width:40%">&#8595</div>
+            </div>
+
+        </div>
+
+        <!-- Grid for puzzle review -->
+        <div class = "puzzleReviewGrid">
+            <div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div>
+            <div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div>
+            <div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div>
+            <div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div>
+            <div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div>
+            <div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div>
+            <div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div>
+            <div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div>
+            <div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div><div class="puzzleReviewTile"></div>
+        </div>
+
+        <!-- Right column of puzzle review info-->
+        <div class = "puzzleReviewRight">
+
+            <!-- Difficulty text and buttons-->
+            Difficulty (Click to vote)
+
+            <div class="row">
+                <div style="width:80%">
+                    <div class = "divButton difficultyButton">Tutorial</div>
+                    <div class = "divButton difficultyButton">Easy</div>
+                    <div class = "divButton difficultyButton">Medium</div>
+                    <div class = "divButton difficultyButton">Hard</div>
+                </div>
+                <div style="width:20%; font-size:22px" >
+                    <div class = "divButton difficultyChangeButton" name="Tutorial">&#8594</div>
+                    <div class = "divButton difficultyChangeButton"name="Easy">&#8594</div>
+                    <div class = "divButton difficultyChangeButton"name="Medium">&#8594</div>
+                    <div class = "divButton difficultyChangeButton"name="Hard">&#8594</div>
+                </div>
+            </div>
+
+            <br>
+
+            <!-- Ratings Section-->
+            Ratings: 
+            <br>
+            <div class = "ratingsDiv"></div>
+
+            <br>
+
+            <!-- Contains the buttons (with images of thumbs up/down) for ratings-->
+            <!-- If current username has already given a rating, displays a red "remove rating" button instead-->
+            <div class = "puzzleReviewRatingsButtons">
+                <div class = "divButton ratingButton">&#128077</div>
+                <div class = "divButton ratingButton">&#128078</div>
+            </div>
+            <br>
+
+            <!-- Finalise Button-->
+            <div class = "puzzleReviewFinaliseButton">Finalise</div>
+
+            <br>
+            
+            <!-- Delete Button-->
+            <!-- Note: should have a pop-up to confirm-->
+            <div class = "puzzleReviewDeleteButton">Delete</div>
+
+        </div>
+
+    </div>
+
+    </div>
+
+
+
+<!--Utility (doesnt affect page) Functions Script-->
+<script src="utilityfunctions.js"></script>
+
+<!--Installing Database Script-->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<!--Database Code-->
+<script src="databasescript.js"></script>
+
+<!--Main code-->
+<script>
+
+// -----===== GLOBAL VARIABLES =====-----
+
+// the difficulty selected
+// string with first letter capitalised
+const globalDifficulty = new URLSearchParams(window.location.search).get("difficulty");
+
+// array of puzzle objects corresponding to the current difficulty
+let globalPuzzles = [];
+
+// quotas for amount of saved and finalised puzzles
+// used for titles of the review page
+// in order [Tutorial, Easy, Medium, Hard]
+const globalSavedQuotas = [13,16,30,7]; 
+const globalFinalisedQuotas = [13,16,30,7]; 
+
+// tracks whether solutions are toggled on or off
+let globalSolutionToggles = [];
+
+// -----===== MAIN PROGRAM =====-----
+
+on_load();
+
+// -----===== FUNCTIONS =====-----
+
+// runs on the page loading
+async function on_load () {
+
+    // if the user hasnt logged in today, puts up the password entry and restricts the rest of the page
+    let localLoginDate = localStorage.getItem("lastLoginDate");
+    if (localLoginDate != null){
+        const date = new Date();
+        let currentLoginDate = String(date.getDate()) + String(date.getMonth()) + String(date.getFullYear());
+        if (localLoginDate != currentLoginDate){
+            document.getElementById("passcodeEntry").style.display = "inline";
+            document.getElementById("passwordRestricted").style.display = "none";
+        } 
+    } else {
+        document.getElementById("passcodeEntry").style.display = "inline";
+        document.getElementById("passwordRestricted").style.display = "none";
+    }
+
+    // updates the difficulty buttons to highlight the current one
+    update_difficulty_buttons(globalDifficulty);
+
+    // loads globalPuzzles
+    globalPuzzles = await get_puzzles_of_difficulty(globalDifficulty);
+
+    // debug
+    console.log(globalPuzzles);
+
+    // sets every solution to be toggled off by default
+    for (let i = 0; i < globalPuzzles; i++){
+        globalSolutionToggles.push(false);
+    }
+
+    // if theres a username in local storage, uses that
+    let localUsername = localStorage.getItem("username");
+    if (localUsername != null){
+        document.getElementById("usernameEntry").value = localUsername;
+    }
+
+    // creates elements for every puzzle display and adds them to the page
+    update_display();
+
+
+}
+
+// runs whenever the user types in the passcode box
+// if its correct, removes the passcode and makes the page visible
+function passcode_typed() {
+    if (document.getElementById("passcodeEntry").value == "balloondog") {
+        document.getElementById("passcodeEntry").style.display = "none";
+        document.getElementById("passwordRestricted").style.display = "inline";
+
+        const date = new Date();
+        localStorage.setItem("lastLoginDate", String(date.getDate()) + String(date.getMonth()) + String(date.getFullYear()) );
+    }
+}
+
+// removes a puzzle locally and keeps everything else correct
+function remove_local_puzzle(puzzle){
+
+    let puzzleIndex = globalPuzzles.indexOf(puzzle);
+
+    // removes it from local array of puzzles
+    globalPuzzles.splice(puzzleIndex,1);
+
+    // removes it from array of solution toggles
+    globalSolutionToggles.splice(puzzleIndex,1);
+
+    update_display();
+
+}
+
+// creates elements for every puzzle display and adds them to the page
+function update_display(){
+
+    // shorthand for globalPuzzles
+    let puzzles = globalPuzzles;
+
+    // the div element containing all the display divs
+    let containerDiv = document.getElementById("puzzleReviewContainer");
+
+    // clears the container div of anything there before
+    containerDiv.innerHTML = "";
+
+    // Updates title with difficulty, amount saved, amount finalised
+    update_title();
+
+    // for each puzzle:
+    for (let i = 0; i < puzzles.length; i++){
+
+        // shorthands
+        let puzzle = puzzles[i];
+        let noodles = puzzle.noodles;
+
+        // CREATE A REVIEW ELEMENT FOR THE PUZZLE:
+
+        // clones the review display template
+        // true parameter means it also copies all its children
+        let newReviewDiv = document.getElementById("puzzleReviewDefault").cloneNode(true);
+        newReviewDiv.id = "reviewDiv" + String(i);
+
+        // unless it is a finalised puzzle when show finalised is disabled...
+        if (!((document.getElementById("showFinalisedCheckbox").checked == false) && (puzzle.finalised == true))){
+            // adds it to the page
+            containerDiv.appendChild(newReviewDiv);
+            // adds a gap after it
+            containerDiv.appendChild(document.createElement("br"));
+            containerDiv.appendChild(document.createElement("br"));
+        }
+        
+        // FOR LEFT COLUMN:
+        let leftColumnDiv = newReviewDiv.firstElementChild;
+
+        // updates puzzle ID text
+        let puzzleIdDisplay = leftColumnDiv.getElementsByClassName("puzzleReviewID").item(0);
+        puzzleIdDisplay.innerHTML = "Puzzle ID: " + String(puzzle.puzzleId);
+
+        // updates list of noodle colours
+        let noodleColoursDisplay = leftColumnDiv.getElementsByClassName("puzzleReviewNoodles").item(0);
+
+        // array of unique noodle colours in the puzzle
+        // their lengths
+        // the amount of times they appear at the corresponding index in colourLengths
+        let uniqueColours = [];
+        let colourLengths = [];
+        let colourCounts = [];
+        for (let j = 0; j < noodles.length; j++){
+            let noodle = noodles[j];
+            if (!uniqueColours.includes(noodle.colour)) {
+                uniqueColours.push(noodle.colour);
+                colourLengths.push(noodle.length);
+                colourCounts.push(1);
+            } else {
+                let colourIndex = uniqueColours.indexOf(noodle.colour);
+                colourCounts[colourIndex] = colourCounts[colourIndex] + 1;
+            }
+        }
+
+        // for each unique colour, adds a line to the display (in the corresponding colour)
+        for (let j = 0; j < uniqueColours.length; j++){
+            let newRow = document.createElement("div");
+            newRow.innerHTML = colourCounts[j] + "x " + get_colour_display_name(uniqueColours[j]) + " (" + colourLengths[j] + ")<br>";
+            // if its an obstacle, says that instead of the colour
+            if (colourLengths[j] == 1){
+                newRow.innerHTML = colourCounts[j] + "x Obstacle";
+                newRow.style.color = "white";
+            }
+            newRow.style.backgroundColor = uniqueColours[j];
+            noodleColoursDisplay.appendChild(newRow);
+        }
+
+        // updates count of noodles
+        let noodleCountDisplay = leftColumnDiv.getElementsByClassName("puzzleReviewNoodleCount").item(0);
+        noodleCountDisplay.innerHTML = "Total: " + String(noodles.length) + " noodles";
+
+        // FOR GRID:
+        let gridDiv = leftColumnDiv.nextElementSibling;
+
+        // corresponding elements to the 2d grid array (also a 2d array)
+        // note this is 0-8 indexed unlike the grid which is 1-9 indexed
+        let gridElements = [];
+        let currentElement = gridDiv.firstElementChild;
+        for (let j = 0; j < 9; j++){
+            let newRow = [];
+            for (let k = 0; k < 9; k++){
+                newRow.push(currentElement);
+                currentElement = currentElement.nextElementSibling;
+            }
+            gridElements.push(newRow);
+        }
+
+        // updates the tiles to show the puzzle unsolved
+        show_grid_unsolved(puzzle, gridElements);
+
+        // Updates toggle solution button onclick
+        let toggleSolButton = leftColumnDiv.getElementsByClassName("puzzleReviewToggleButton").item(0);
+        toggleSolButton.onclick = function () {
+            toggle_sol_pressed(puzzle,toggleSolButton,gridElements);
+        }
+
+        // updates swap puzzle order buttons onclick
+        let upButton = leftColumnDiv.getElementsByClassName("puzzleReviewSwapUpButton").item(0);
+        upButton.onclick = function () {
+            update_order_pressed(puzzle,"up");
+        }
+        let downButton = leftColumnDiv.getElementsByClassName("puzzleReviewSwapDownButton").item(0);
+        downButton.onclick = function () {
+            update_order_pressed(puzzle,"down");
+        }
+
+
+        
+
+
+        // FOR RIGHT COLUMN:
+        let rightColumnDiv = gridDiv.nextElementSibling;
+
+        // the username currently entered into the input box
+        let username = document.getElementById("usernameEntry").value;
+
+        
+
+        // updates difficulty button to have current one highlighted
+        // and to have the correct onclick
+        let puzzleDifficultyButtons = rightColumnDiv.getElementsByClassName("difficultyButton");
+        for (let j = 0; j < puzzleDifficultyButtons.length; j++){
+
+            let currentButton = puzzleDifficultyButtons.item(j);
+
+            // removes any thumbs up votes from before
+            currentButton.innerHTML = currentButton.innerHTML.replace("&#128077", "");
+            currentButton.title = "";
+
+
+            // updates highlight
+            if (currentButton.innerHTML == globalDifficulty){
+                currentButton.classList.add("activeButton");
+            }
+
+            let buttonDifficulty = currentButton.innerHTML;
+
+            // updates onclick
+            currentButton.onclick = function () {
+                difficulty_pressed(puzzle, buttonDifficulty, currentButton, username);
+            }
+
+            // array of the votes for the different difficulties
+            // "T", "E", "M", "H"
+            let difficultyVotesLetters = puzzle.difficultyVotes.map(x => x.charAt(0));
+
+            // gives it the correct amount of thumbs up votes
+            for (let k = 0; k < difficultyVotesLetters.length; k++){
+                if (difficultyVotesLetters[k] == buttonDifficulty.charAt(0)){
+                    currentButton.innerHTML = currentButton.innerHTML + "&#128077";
+                    currentButton.title = currentButton.title + puzzle.difficultyVotes[k].slice(1) + " ";
+                }
+            }
+        }
+
+        // Update change difficulty buttons to have the correct onclick
+        let puzzleDifficultyChangeButtons = rightColumnDiv.getElementsByClassName("difficultyChangeButton");
+        for (button of puzzleDifficultyChangeButtons){
+
+            let buttonDifficulty = button.getAttribute("name");
+
+            button.onclick = function () {
+
+                
+
+                console.log(buttonDifficulty);
+
+                // does nothing if the same difficulty as it currently is
+                if (buttonDifficulty == globalDifficulty){
+                    return;
+                }
+
+                // updates database
+                update_puzzle_difficulty(puzzle.puzzleId, buttonDifficulty);
+
+                // removes it from the local puzzle list (and updates display)
+                remove_local_puzzle(puzzle);
+
+            }
+
+        }
+
+        // Displays ratings
+        let ratingsDiv = rightColumnDiv.getElementsByClassName("ratingsDiv").item(0);
+        for (let j = 0; j < puzzle.ratings.length; j++ ){
+            // adds the rating as text to the div
+            ratingsDiv.innerHTML = ratingsDiv.innerHTML + puzzle.ratings[j] + "<br>";
+        }
+
+        // Updates Rating Buttons
+        let ratingButtonsDiv = rightColumnDiv.getElementsByClassName("puzzleReviewRatingsButtons").item(0);
+
+        if (username == "") {
+            ratingButtonsDiv.innerHTML = "Please enter a username<br>to rate this puzzle.";
+        } else if (!is_username_valid(username)) {
+            ratingButtonsDiv.innerHTML = "Please do not use commas or thumbs up or down emojis in the username";
+        } else {
+            let alreadyRated = false;
+
+            for (let j = 0; j < puzzle.ratings.length; j++){
+                // removes the emoji and check if this user is the same as the one that left the rating
+                if (username == puzzle.ratings[j].replace("&#128077", "").replace("&#128078", "")){
+
+                    alreadyRated = true;
+
+                    // replaces the thumbs up and down buttons with button to remove your rating
+                    ratingButtonsDiv.firstElementChild.remove()
+                    let newButton = ratingButtonsDiv.firstElementChild;
+                    newButton.innerHTML = "Remove Rating";
+                    newButton.onclick = function () {
+                        remove_rating_pressed(puzzle,username);
+                    }
+                }
+            }
+
+            if (!alreadyRated){
+
+                // give the thumbs up and down buttons onclick events
+                let ratingButtons = ratingButtonsDiv.getElementsByClassName("ratingButton");
+
+                // thumbsup button
+                ratingButtons.item(0).onclick = function () {
+                    rating_button_pressed(puzzle,"&#128077",username);
+                }
+                // thumbsdown button
+                ratingButtons.item(1).onclick = function () {
+                    rating_button_pressed(puzzle,"&#128078",username);
+                }
+
+
+            }
+        }
+
+
+        // Updates finalise button onclick
+        // calls the function with puzzle's id and button so it can be updated on the database
+        // flips the puzzle's finalised status
+        let finaliseButton = rightColumnDiv.getElementsByClassName("puzzleReviewFinaliseButton").item(0);
+        finaliseButton.onclick = function () {
+            finalise_pressed(puzzle,finaliseButton);
+        }
+
+        // If its already been finalised, replaces text with "Unfinalise"
+        if (puzzle.finalised == true){
+            finaliseButton.innerHTML = "Unfinalise";
+            finaliseButton.style.backgroundColor = "lime";
+        }
+
+        // Updates delete button onclick
+        let deleteButton = rightColumnDiv.getElementsByClassName("puzzleReviewDeleteButton").item(0);
+        deleteButton.onclick = function () {
+            delete_pressed(puzzle,deleteButton);
+        }
+
+    }
+
+
+
+}
+
+// updates the title with the current difficulty, amount saved, and amount finalised
+// note does not accurately represent changes in amount saved unless page is refreshed
+function update_title (){
+
+    // amount of saved and finalised puzzles
+    let savedCount = globalPuzzles.length;
+    let finalisedCount = 0;
+
+    // for each puzzle, increments savedCount and finalisedCount if applicable (all of them are saved)
+    for (let i = 0; i < globalPuzzles.length; i++){
+        if (globalPuzzles[i].finalised == true){
+            finalisedCount = finalisedCount + 1;
+        }
+    }
+
+    let difficultyIndex = ["Tutorial","Easy","Medium","Hard"].indexOf(globalDifficulty);
+
+    // updates title text
+    document.getElementById("puzzleReviewTitle").innerHTML = 
+        globalDifficulty + 
+        " (" + String(savedCount) + "/" + globalSavedQuotas[difficultyIndex] + " Saved)" +
+        " (" + String(finalisedCount) + "/" + globalFinalisedQuotas[difficultyIndex] + " Finalised)";
+
+}
+
+// runs when the toggle solution button is pressed
+function toggle_sol_pressed (puzzle,toggleSolButton, gridElements) {
+
+    let puzzleIndex = globalPuzzles.indexOf(puzzle);
+
+    // whether it is now toggled on or off
+    let newToggleState = !globalSolutionToggles[puzzleIndex];
+
+    // updates the saved toggle state
+    globalSolutionToggles[puzzleIndex] = newToggleState;
+
+    if (newToggleState == true){
+        show_grid_solved(puzzle,gridElements);
+    } else {
+        show_grid_unsolved(puzzle, gridElements);
+    }
+
+}
+
+// runs when the up or down arrow to swap puzzle order is pressed
+function update_order_pressed(puzzle,direction){
+
+    // gets non finalised puzzles, or all puzzles if the checkbox is ticked
+    let puzzlesVisible = globalPuzzles.filter((p) => (p.finalised == false || document.getElementById("showFinalisedCheckbox").checked == true));
+
+    let puzzle1Index = puzzlesVisible.indexOf(puzzle);
+    let puzzle2Index
+
+    if (direction == "up"){
+
+        // if its already at the top, does nothing
+        if (puzzle1Index == 0){
+            console.log("already at top");
+            return;
+        }
+
+        // gets the puzzle before it
+        puzzle2Index = puzzle1Index - 1;
+
+    } else {
+
+        // if its already at the bottom, does nothing
+        if (puzzle1Index == (puzzlesVisible.length - 1)){
+            console.log("already at bottom");
+            return;
+        }
+        
+        // gets the puzzle after it
+        puzzle2Index = puzzle1Index + 1;
+
+    }
+
+    let puzzle2 = puzzlesVisible[puzzle2Index];
+
+    // swaps position in local array
+    let puzzle1GlobalIndex = globalPuzzles.indexOf(puzzle);
+    let puzzle2GlobalIndex = globalPuzzles.indexOf(puzzle2);
+    [globalPuzzles[puzzle1GlobalIndex], globalPuzzles[puzzle2GlobalIndex]] = [globalPuzzles[puzzle2GlobalIndex], globalPuzzles[puzzle1GlobalIndex]];
+
+    // updates database
+    let tempOrderNumHolder = puzzle.orderNum;
+    // updates this puzzles orderNum
+    update_puzzle_ordernum(puzzle.puzzleId, puzzle2.orderNum);
+    puzzle.orderNum = puzzle2.orderNum;
+    // updates the puzzle its swapping with's orderNum
+    update_puzzle_ordernum(puzzle2.puzzleId,tempOrderNumHolder);
+    puzzle2.orderNum = tempOrderNumHolder;
+
+    // updates the display
+    update_display();
+
+}
+
+// updates the given grid to be the solved puzzle
+function show_grid_solved (puzzle, gridElements) {
+
+    // note this is copy pasted from the generated version
+    // so just adapting to the variable names here
+    let solutionGrid = puzzle.grid;
+    let elementGrid = gridElements;
+    let noodleList = puzzle.noodles;
+
+    // note going 0-8, but solution grid uses 1-9 so +1s included later
+    for (let i = 0; i < 9; i++){
+        for (let j = 0; j < 9; j++){
+
+            // each string in the grid starts with a number to say which order they're in
+            let tileNum = parseInt(solutionGrid[i+1][j+1]);
+
+            // removes number to get the icon
+            let tileIcon = solutionGrid[i+1][j+1].replace(/[0-9]/g, '');
+
+            // sets the colour of the tile to be the corresponding colour of the noodle with that icon
+            if (tileIcon != "X"){
+                let tileColour = noodleList[noodleList.map(x => x.icon).indexOf(tileIcon)].colour;
+                elementGrid[i][j].style.backgroundColor = tileColour;
+            }
+            
+            // checking adjacent tiles to see what string it should contain
+            let adjacentTiles = get_adjacent(solutionGrid,i+1,j+1);
+
+            // contains two numbers based off where the noodle went before and after the current tile
+            // 4 is default value and will only remain if it is the start or end
+            // 0 = down, 1 = up, 2 = right, 3 = left
+            let beforeAfter = [4,4];
+            for (let k = 0; k < 4; k++){
+
+                // if the tile is the same noodle (icon)
+                if (adjacentTiles[k].replace(/[0-9]/g, '') == tileIcon){
+
+                    // checks for tiles before or after in the noodle
+                    if (parseInt(adjacentTiles[k]) == (tileNum-1)){
+                        beforeAfter[0] = k;
+                    } else if (parseInt(adjacentTiles[k]) == (tileNum+1)){
+                        beforeAfter[1] = k;
+                    }
+                }
+            }
+
+            // if it IS the start or end of a noodle
+            // sets string to the noodles length
+            if (beforeAfter.includes(4)) {
+                for (let k = 1; k < noodleList.length; k++){
+                    if (noodleList[k].icon == tileIcon){
+                        elementGrid[i][j].innerHTML = String(noodleList[k].length);
+                    }
+                }
+
+            // if it IS NOT the start or the end, looks up the corresponding line to draw
+            // sets the inner html to that string
+            } else {
+
+                // array that correlates beforeAfter to a unicode symbol with the right line
+                let correspondingStrings = [[[0,1],"&#x2502"],[[0,2],"&#x250C"],[[0,3],"&#x2510"],[[1,0],"&#x2502"],[[1,2],"&#x2514"],[[1,3],"&#x2518"],[[2,0],"&#x250C"],[[2,1],"&#x2514"],[[2,3],"&#x2500"],[[3,0],"&#x2510"],[[3,1],"&#x2518"],[[3,2],"&#x2500"]];
+                
+                // loops through each possible line
+                for (let k = 0; k < 12; k++){
+                    if (are_arrays_equal(beforeAfter,correspondingStrings[k][0])){
+                        elementGrid[i][j].innerHTML = correspondingStrings[k][1];
+                    }
+                }
+            }
+        }
+    }
+
+}
+
+// updates the given grid to be the unsolved puzzle
+function show_grid_unsolved (puzzle, gridElements) {
+
+    // 2d array of SOLVED grid (still has correct "X"s for unsolved puzzle)
+    let grid = puzzle.grid;
+
+    // for every tile (note i and j are 1-9 indexed, while gridElements is 0-9 indexed)
+    // fills in blocked off spaces, and rest are coloured lightgrey
+    for (let i = 1; i < 10; i++){
+        for (let j = 1; j < 10; j++){
+
+            if (grid[i][j] == "X"){
+                // -1 to account for difference in indexing
+                gridElements[i-1][j-1].style.backgroundColor = "black";
+            } else {
+                gridElements[i-1][j-1].style.backgroundColor = "lightgrey";
+            }
+
+            // clears any text that was there previously
+            gridElements[i-1][j-1].innerHTML = "";
+        }
+    }
+
+    // list of noodle objects for the current puzzle
+    let noodles = puzzle.noodles;
+
+    // colouring in the noodle starts and ends with the corresponding colour
+    for (let i = 0; i < noodles.length; i++){
+        let noodle = noodles[i];
+        let start = noodle.start;
+        let end = noodle.end;
+        // -1 because need to convert from 1-9 index in 11x11 grid to 0-8 array
+        gridElements[start[0]-1][start[1]-1].style.backgroundColor = noodle.colour;
+        gridElements[start[0]-1][start[1]-1].innerHTML = String(noodle.length);
+        gridElements[end[0]-1][end[1]-1].style.backgroundColor = noodle.colour;
+        gridElements[end[0]-1][end[1]-1].innerHTML = String(noodle.length);
+        // Sets obstacle text to be black
+        if (noodle.length == 1){
+            gridElements[start[0]-1][start[1]-1].style.color = "black";
+            gridElements[end[0]-1][end[1]-1].style.color = "black";
+        }
+    }
+}
+
+// runs when a difficulty button is pressed
+async function difficulty_pressed(puzzle, difficulty, button, username) {
+
+    // gets difficultyvotes as an array
+    let difficultyVotesString = await get_puzzle_difficultyvotes(puzzle.puzzleId);
+    let difficultyVotes = difficultyVotesString.split(",");
+
+    // removes the first character (which encodes difficulty)
+    let difficultyUsernames = difficultyVotes.map(x => x.slice(1));
+
+    // tracks if its clicking on the difficulty its already clicked on, in which case it removes that vote
+    let removingVote = false;
+
+    // if this user has already voted, removes their previous vote from the list
+    if (difficultyUsernames.includes(username)) {
+
+        let usernameIndex = difficultyUsernames.indexOf(username);
+        
+        // if its the same difficulty as the button
+        if (difficultyVotes[usernameIndex].charAt(0) == difficulty.charAt(0)){
+            removingVote = true;
+        }
+
+        // removes from local copies
+        difficultyVotes.splice(usernameIndex,1);
+        difficultyUsernames.splice(usernameIndex,1);
+
+
+
+    }
+
+    if (!removingVote){
+        // adds new vote
+        // difficultyvotes is an array of "char that encodes difficulty" + "username that voted"
+        difficultyVotes.push(difficulty.charAt(0) + username);
+    }
+
+    
+
+
+
+
+    let difficultyVotesLetters = difficultyVotes.map(x => x.charAt(0));
+
+    let counts = {};
+    for (const vote of difficultyVotesLetters){
+        // question mark means if the value to the left is truthy (exists), does counts[vote] + 1, otherwise does 1
+        counts[vote] = counts[vote] ? counts[vote] + 1 : 1;
+    }
+
+    /*
+    let newDifficulty = "none";
+    for (const votedDiff of Object.keys(counts)){
+        if ((counts[votedDiff] > 1) && (votedDiff != globalDifficulty.charAt(0))){
+            newDifficulty = votedDiff;
+        }
+    }
+
+    // IF there is now enough votes:
+    if (newDifficulty != "none"){
+
+        // updates database
+        update_puzzle_difficulty(puzzle.puzzleId, difficulty);
+
+        // removes it from the local puzzle list (and updates display)
+        remove_local_puzzle(puzzle);
+    
+    */
+
+    // updates local value
+    puzzle.difficultyVotes = difficultyVotes;
+
+    // updates database
+    update_puzzle_difficultyvotes(puzzle.puzzleId,String(difficultyVotes));
+
+    // refreshes the display
+    update_display();
+
+
+}
+
+// runs when a rating button is pressed
+function rating_button_pressed (puzzle, emoji, username){
+
+    // adds to local list
+    puzzle.ratings.push(emoji + username);
+
+    // update the database
+    add_puzzle_rating(puzzle.puzzleId,emoji + username);
+
+    // update the display
+    update_display();
+
+
+
+}
+
+// runs when the "Remove Rating" button is pressed
+// (only exists if the username has already rated a puzzle)
+function remove_rating_pressed (puzzle, username) {
+
+    // list of ratings without emojis (just usernames)
+    let ratingUsernames = puzzle.ratings.map(x => x.replace("&#128077", "").replace("&#128078", ""));
+
+    // removes the rating of the given username
+    let removeIndex = ratingUsernames.indexOf(username);
+    let ratingToRemove = puzzle.ratings[removeIndex];
+    puzzle.ratings.splice(removeIndex,1);
+
+    // update the database
+    remove_puzzle_rating(puzzle.puzzleId,ratingToRemove);
+
+    // update the display
+    update_display();
+
+}
+
+// runs when the finalise button for a puzzle is pressed
+function finalise_pressed (puzzle, finaliseButton){
+
+    // updates the value in the local copy of the puzzle
+    let newFinalised = !puzzle.finalised;
+    puzzle.finalised = newFinalised;
+    
+    // sets the finalised column of the puzzle in the "puzzles" database to true
+    finalise_puzzle(puzzle.puzzleId,newFinalised);
+
+    // Updates text and colour to the reverse option
+    if (puzzle.finalised == true){
+        finaliseButton.innerHTML = "Unfinalise";
+        finaliseButton.style.backgroundColor = "lime";
+    } else {
+        finaliseButton.innerHTML = "Finalise";
+        finaliseButton.style.backgroundColor = "green";
+    }
+
+    // updates the finalised count in the title
+    update_title();
+
+    update_display();
+
+    console.log(puzzle.finalised);
+}
+
+// runs when the delete button is pressed
+function delete_pressed(puzzle, deleteButton) {
+
+    // causes a popup the user must accept to proceed
+    if (window.confirm("Are you sure you want to delete this puzzle? (ID: " + String(puzzle.puzzleId) +")")){
+
+        // updates the database so that it is not saved
+        delete_puzzle(puzzle.puzzleId);
+
+        // removes it from the local puzzle list
+        remove_local_puzzle(puzzle);
+
+    }
+
+}
+
+// gets the corresponding difficulty button and adds the "activeButton" class to it
+function update_difficulty_buttons(difficulty) {
+
+    // gets corresponding button
+    let buttonElement = document.getElementById("reviewDifficultyButton" + difficulty);
+
+    // adds activeButton class (changes its colour)
+    buttonElement.classList.add("activeButton");
+
+}
+
+// runs when the username field is typed in
+function username_typed () {
+
+    let username = document.getElementById("usernameEntry").value;
+
+    // refreshes puzzle displays so the review buttons are updated
+    update_display();
+
+
+    // if valid, updates localstorage to track this username for future use
+    if (!is_username_valid(username)){
+        return;
+    }
+    localStorage.setItem("username", username);
+}
+
+// returns true if username meets the following conditions, otherwise false
+// no commas
+// no &#128077 (thumbsup)
+// no &#128078 (thumbsdown)
+function is_username_valid(username){
+
+    if (username.includes(",")){
+        return false;
+    }
+
+    if (username.includes("&#128077")){
+        return false;
+    }
+
+    if (username.includes("&#128078")){
+        return false;
+    }
+
+    return true;
+
+}
+
+</script>
+
+</body>
+</html>

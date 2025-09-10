@@ -1,0 +1,1108 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet'>
+    <link rel="stylesheet" href="neonstylesheet.css">
+    <link rel="icon" type="image/x-icon" href="favicon.png">
+</head>
+<body>
+
+    <div class="navBar">
+        <img src = "logo.png" class = "logo"> 
+        Noodle Puzzle Generator
+        <div style = "width:30%"></div>
+        <a href="index.html" class="divButton activeButton">Generate</a>
+        <a href="puzzles.html?difficulty=Tutorial" class="divButton">Review</a>
+        <a href="final.html" class="divButton">Finalised</a>
+    </div>
+    <div class="fadeLine"></div>
+
+    <br>
+
+    <input type="text" id="passcodeEntry" placeholder="Enter passcode" style="font-size:40px; display:none" oninput="passcode_typed()">
+
+    <div id = "passwordRestricted">
+        <div class = "row">
+            <div class = "column30">
+                <div id = "noodleBoxDefault" class = "noodleBox">
+                    <div class = "noodleBoxLength">14</div>
+                    <div class = "noodleBoxCheckboxes" title = "How many noodles should be placed onto the grid."></div>
+                    <div class = noodleBoxSettings title = "If checked, allows immediate turns at the end of the noodles.">
+                        &#11187 <br>
+                    </div>
+                    <div class = "noodleBoxFinalisedCount">x0</div>
+                </div>
+                <div id = "noodleZone">
+                    Check the boxes to add or remove noodles:
+                </div>
+
+            </div>
+            <div class = "column40">
+                Click on the tiles to add or remove them from the puzzle:
+                <div id = "settingsGridHolder"></div>
+                <br>
+                <div id = "progressBarBox">
+                    <div id = "progressBarLabel"></div>
+                    <div id = "progressBar" style = "width: 0%; background-color: #1F5567; height:100%;"></div>
+                </div>
+
+            </div>
+            <div class = "column30">
+                <br>
+                <div id = "filledTilesCounter"><span id = "lengthSum">81</span>/<span id = "emptyTileSum">81</span> Tiles Filled</div>
+                <br>
+                <div id = "advancedSettings">
+                    <div style = "font-size: 20px; font-weight: bold; text-decoration: underline;">
+                        Advanced Settings:
+                    </div>
+                    <br>
+                    Turning chance: <br>
+                    <input type="text" id="turnChanceEntry" name="turnChanceEntry" value="1">
+                    <br><br>
+                    Longest straight line allowed: <br>
+                    <input type="text" id="straightLimitEntry" value="5">
+                    <br><br>
+                    Load a saved preset:<br>
+                    <select name="presetSelect" id="presetSelect" onchange="load_pressed()"></select>
+                    <input id="loadButton" type="button" value="Load" onclick="load_pressed();">
+                    <br><br>
+                    Save current layout as preset:<br>
+                    <input type="text" id="presetNameEntry" placeholder="enter name here">
+                    <input id="saveButton" type="button" value="Save" onclick="save_pressed();" >
+                    <br><br>
+                    Amount of puzzles to generate:<br>
+                    <input type="text" id="generateCountEntry" value="1">
+                    <br><br>
+                    <input id="disableTurnsButton" type="button" value="Disable all immediate turns" onclick="disable_turns_pressed();" >
+                    <br><br>
+                    
+                </div>
+                <br>
+                <br>
+                <div id = "generateButton" class = "divButton" onclick="gen_pressed();">Generate Puzzle(s)</div>
+                <br>
+                <div id = "feedbackMessage"></div>
+            </div>
+
+
+        </div>
+
+        <br><br>
+
+        <div class="fadeLine"></div>
+
+    </div>
+    
+
+
+
+
+
+
+
+
+<!--Utility (doesnt affect page) Functions Script-->
+<script src="utilityfunctions.js"></script>
+
+<!--Installing Database Script-->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<!--Database Code-->
+<script src="databasescript.js"></script>
+
+
+<!--Main Javascript-->
+<script>
+
+// refreshes the page
+//window.location.reload(true);
+
+
+// tracks whether the web worker is currently generating a puzzle
+// (Doesnt let it start another if true)
+let generating = false;
+
+// the grid that determines the shape of the puzzle
+// 11x11 with "X" on the outer border (so there is a 9x9 within)
+let initGrid = [["X","X","X","X","X","X","X","X","X","X","X"],["X"," "," "," "," "," "," "," "," "," ","X"],["X"," "," "," "," "," "," "," "," "," ","X"],["X"," "," "," "," "," "," "," "," "," ","X"],["X"," "," "," "," "," "," "," "," "," ","X"],["X"," "," "," "," "," "," "," "," "," ","X"],["X"," "," "," "," "," "," "," "," "," ","X"],["X"," "," "," "," "," "," "," "," "," ","X"],["X"," "," "," "," "," "," "," "," "," ","X"],["X"," "," "," "," "," "," "," "," "," ","X"],["X","X","X","X","X","X","X","X","X","X","X"]];
+
+// the characteristics of all noodles (enabled and disabled) currently on the page
+let noodleData = [];
+
+// the web worker that generates the puzzles
+let genWorker = new Worker("supergenerator.js");
+//let genWorker = new Worker(new URL('../generator.js', "http://localhost:8000/website.html"));
+
+// list of lists for each generated puzzle [solutionShowing (true/false), puzzle, elementGrid, button object]
+let activePuzzles = [];
+
+// tracks which presets are currently available to the user
+let savedPresets = [];
+
+// tracks all saved puzzles and those generated during this session, as to avoid dupes
+let globalDupeGrids = [];
+
+// For displaying how much of each noodle has been used
+// their lengths
+// the amount of times they appear at the corresponding index in colourLengths
+// the unique colours used
+let globalUniqueColours = [];
+let globalColourLengths = [];
+let globalColourCounts = [];
+
+// amount of puzzles generated, while generating more than 1
+let globalPuzzlesGenerated = 0;
+
+// stops generating puzzles when it reaches this amount
+let globalPuzzleQuota = 1;
+
+// runs upon the puzzle being generated
+genWorker.onmessage = function(event) {
+
+    let messageData = event.data;
+    let loadingLabel = document.getElementById("progressBarLabel");
+    let loadingBar = document.getElementById("progressBar");
+
+    if ((typeof messageData) == "string"){
+
+        loadingLabel.innerHTML = messageData + "  (" + globalPuzzlesGenerated + "/" + globalPuzzleQuota + ")";
+
+        switch (messageData){
+
+            case "Generating puzzles...":
+                loadingBar.style.width = "25%";
+                break;
+            
+            case "Solution passed first uniqueness check":
+                loadingBar.style.width = "50%";
+                break;
+            
+            case "Checking uniqueness of multiple noodle endings...":
+                loadingBar.style.width = "75%";
+                break;
+        }
+
+        return;
+    }
+
+    let puzzle = messageData;
+    loadingLabel.innerHTML = "Done!";
+    loadingBar.style.width = "100%";
+
+    console.log(puzzle);
+
+    // if its a dupe, sends it back to try again
+    if (check_dupe(puzzle)){
+        genWorker.postMessage(puzzle.genParams);
+        return;
+    }
+
+    // saves puzzle to database (with saved = false)
+    let puzzleId = insert_puzzle(puzzle);
+
+    // displays the puzzle on the page
+    display_new_puzzle(puzzle,puzzleId);
+
+
+    // checks to see if it is done
+    globalPuzzlesGenerated = globalPuzzlesGenerated + 1;
+    if (globalPuzzlesGenerated == globalPuzzleQuota){
+        generating = false;
+    } else {
+        genWorker.postMessage(puzzle.genParams);
+    }
+
+    
+
+    
+};
+
+// generating the grid to change puzzle size
+let settingsGridDiv = document.createElement("div");
+settingsGridDiv.className = "puzzleGrid";
+document.getElementById("settingsGridHolder").appendChild(settingsGridDiv);
+
+let settingsGridElements = [];
+for (let i = 0; i < 9; i++){
+    let newRow = [];
+    for (let j = 0; j < 9; j++){
+        newRow.push(document.createElement("div"));
+        newRow[j].className = "tile";
+        newRow[j].style.backgroundColor = "lightgrey";
+        newRow[j].onclick = function () {
+            setting_tile_clicked(i,j);
+        }
+        settingsGridDiv.appendChild(newRow[j]);
+    }
+    settingsGridElements.push(newRow);
+}
+
+
+setup_page();
+
+
+// -----===== FUNCTIONS =====-----
+
+// runs when the page is loaded
+// allows setup without creating unneccessary global variables
+async function setup_page(){
+    
+    
+    // if there is no local storage for presets, creates one
+    if (localStorage.getItem("presetNames") == null){
+        localStorage.setItem("presetNames","");
+    }
+
+    // if the user hasnt logged in today, puts up the password entry and restricts the rest of the page
+    let localLoginDate = localStorage.getItem("lastLoginDate");
+    if (localLoginDate != null){
+        const date = new Date();
+        let currentLoginDate = String(date.getDate()) + String(date.getMonth()) + String(date.getFullYear());
+        if (localLoginDate != currentLoginDate){
+            document.getElementById("passcodeEntry").style.display = "inline";
+            document.getElementById("passwordRestricted").style.display = "none";
+        } 
+    } else {
+        document.getElementById("passcodeEntry").style.display = "inline";
+        document.getElementById("passwordRestricted").style.display = "none";
+    }
+    
+    // loads presets into savedPresets, and updates the dropdown menu
+    update_presets();
+
+    // loads the preset in the first slot, ie the default one
+    load_pressed();
+
+    
+
+    
+
+    // loads globalDupeGrids
+    // array of 11x11 2d grid arrays, with strings of noodle lengths at noodle ends
+    let difficulties = ["Tutorial","Easy","Medium","Hard"];    
+    for (let i = 0; i < difficulties.length; i++){
+        let puzzleList = await get_puzzles_of_difficulty(difficulties[i]);
+        for (let dupePuzzle of puzzleList) {
+            let newDupeGrid = [["X","X","X","X","X","X","X","X","X","X","X"],["X"," "," "," "," "," "," "," "," "," ","X"],["X"," "," "," "," "," "," "," "," "," ","X"],["X"," "," "," "," "," "," "," "," "," ","X"],["X"," "," "," "," "," "," "," "," "," ","X"],["X"," "," "," "," "," "," "," "," "," ","X"],["X"," "," "," "," "," "," "," "," "," ","X"],["X"," "," "," "," "," "," "," "," "," ","X"],["X"," "," "," "," "," "," "," "," "," ","X"],["X"," "," "," "," "," "," "," "," "," ","X"],["X","X","X","X","X","X","X","X","X","X","X"]];
+            for (let noodle of dupePuzzle.noodles) {
+                newDupeGrid[noodle.start[0]][noodle.start[1]] = String(noodle.length);
+                newDupeGrid[noodle.end[0]][noodle.end[1]] = String(noodle.length);
+
+                if (dupePuzzle.finalised != true){
+                    continue;
+                }
+
+                // Tracking usage of noodles to display in the noodle boxes
+                if (!globalUniqueColours.includes(noodle.colour)) {
+                    globalUniqueColours.push(noodle.colour);
+                    globalColourLengths.push(noodle.length);
+                    globalColourCounts.push(1);
+                } else {
+                    let colourIndex = globalUniqueColours.indexOf(noodle.colour);
+                    globalColourCounts[colourIndex] = globalColourCounts[colourIndex] + 1;
+                }
+
+            }
+            globalDupeGrids.push(newDupeGrid);
+
+        }
+
+    }
+
+    // updates the noodle display to show the correct data
+    refresh_noodles();
+
+    // updates the length sum display
+    update_length_sum();
+}
+
+// runs whenever the user types in the passcode box
+// if its correct, removes the passcode and makes the page visible
+function passcode_typed() {
+    if (document.getElementById("passcodeEntry").value == "balloondog") {
+        document.getElementById("passcodeEntry").style.display = "none";
+        document.getElementById("passwordRestricted").style.display = "inline";
+
+        const date = new Date();
+        localStorage.setItem("lastLoginDate", String(date.getDate()) + String(date.getMonth()) + String(date.getFullYear()) );
+    }
+}
+
+// returns true if the puzzle is a dupe and should not be generated
+// dupe against saved puzzles or those generated in this session
+function check_dupe(puzzle){
+
+    // getting this puzzle in the same form as the ones saved for checking dupes
+    // that is, unsolved 2d array with the lengths as strings at the noodle ends
+    let puzzleCheckGrid = [["X","X","X","X","X","X","X","X","X","X","X"],["X"," "," "," "," "," "," "," "," "," ","X"],["X"," "," "," "," "," "," "," "," "," ","X"],["X"," "," "," "," "," "," "," "," "," ","X"],["X"," "," "," "," "," "," "," "," "," ","X"],["X"," "," "," "," "," "," "," "," "," ","X"],["X"," "," "," "," "," "," "," "," "," ","X"],["X"," "," "," "," "," "," "," "," "," ","X"],["X"," "," "," "," "," "," "," "," "," ","X"],["X"," "," "," "," "," "," "," "," "," ","X"],["X","X","X","X","X","X","X","X","X","X","X"]];
+    for (let checkNoodle of puzzle.noodles) {
+        puzzleCheckGrid[checkNoodle.start[0]][checkNoodle.start[1]] = String(checkNoodle.length);
+        puzzleCheckGrid[checkNoodle.end[0]][checkNoodle.end[1]] = String(checkNoodle.length);
+    }
+
+    //show_grid(puzzleCheckGrid);
+
+    let foundCopy = false;
+
+    for (let dupeGrid of globalDupeGrids){
+
+        //show_grid(dupeGrid);
+
+        let isThisGridEqual = true;
+
+        for (let i = 0; i < 11; i++){
+            for (let j = 0; j < 11; j++){
+                if (puzzleCheckGrid[i][j] != dupeGrid[i][j]){
+                    isThisGridEqual = false;
+                }
+                
+            }
+        }
+
+        if (isThisGridEqual){
+            foundCopy = true;
+        }
+    }
+
+    if (!foundCopy){
+        globalDupeGrids.push(puzzleCheckGrid);
+    }
+
+    return foundCopy;
+}
+
+// loads all preset names from local storage "presetNames"
+// then returns them formatted correctly as a list
+// note the fact this uses split means the names cannot include commas
+// relies on the fact that the names are strings and not arrays
+function get_preset_names(){
+    let rawList = localStorage.getItem("presetNames").split(",");
+    if (are_arrays_equal(rawList,[""])){
+        return [];
+    } else {
+        return rawList;
+    }
+
+}
+
+// updates the savedPresets array
+// and dropdown menu html
+// to include only default presets and those saved locally
+function update_presets(){
+
+    // resets preset list to default(s)
+    savedPresets = [["default",[[[8,[true,true],"#00B5E2",true],[9,[true],"#FF9E1B",true],[11,[true,false],"#963CBD",true],[13,[true],"#FC4C02",true],[14,[false],"#EEDC00",true],[15,[true],"#DF1995",true],[17,[true],"#7ACC00",true],[19,[false],"#EABEDB",true],[1,[false,false,false,false],"black",true]],1,[["X","X","X","X","X","X","X","X","X","X","X"],["X"," "," "," "," "," "," "," "," "," ","X"],["X"," "," "," "," "," "," "," "," "," ","X"],["X"," "," "," "," "," "," "," "," "," ","X"],["X"," "," "," "," "," "," "," "," "," ","X"],["X"," "," "," "," "," "," "," "," "," ","X"],["X"," "," "," "," "," "," "," "," "," ","X"],["X"," "," "," "," "," "," "," "," "," ","X"],["X"," "," "," "," "," "," "," "," "," ","X"],["X"," "," "," "," "," "," "," "," "," ","X"],["X","X","X","X","X","X","X","X","X","X","X"]],5]]];
+
+    // loads all presets from the local storage
+    let presetNames = get_preset_names(); // note this means names cant have commas in them
+    for (let i = 0; i < presetNames.length; i++){
+        savedPresets.push(read_preset(presetNames[i]))
+    }
+
+    // clears dropdown menu
+    document.getElementById("presetSelect").innerHTML = "";
+
+    // adds all loaded presets as options in the load dropdown menu
+    for (let i = 0; i < savedPresets.length; i++){
+        let newOption = document.createElement("option");
+        // sets the value and display text to be the presets name
+        newOption.value = savedPresets[i][0];
+        newOption.innerHTML = savedPresets[i][0];
+        document.getElementById("presetSelect").appendChild(newOption);
+    }
+}
+
+
+// clears and rebuilds the section that displays the noodles
+function refresh_noodles() {
+
+    let noodleZone = document.getElementById("noodleZone");
+
+    // clears previous html from display
+    noodleZone.innerHTML = "";
+
+    // for each unique length, copies and updates a box
+    for (let i = 0; i < noodleData.length; i++){
+
+        // copies the template
+        let newNoodleBox = document.getElementById("noodleBoxDefault").cloneNode(true);
+        newNoodleBox.id = "noodleBox" + String(i);
+        noodleZone.appendChild(newNoodleBox);
+
+        // Updates length label to correct number
+        newNoodleBox.getElementsByClassName("noodleBoxLength")[0].innerHTML = String(noodleData[i][0]);
+
+        // Updates colour of box
+        let noodleColour = noodleData[i][2];
+        newNoodleBox.style.outlineColor = noodleColour;
+        newNoodleBox.style.background = "linear-gradient(270deg, #050E11, #050E11 60%, " + noodleColour + ")";
+
+        // creates a checkbox for each noodle
+        let checkboxesDiv = newNoodleBox.getElementsByClassName("noodleBoxCheckboxes")[0];
+        for (let j = 0; j < noodleData[i][1].length; j++){
+            let newCheckbox = document.createElement("input");
+            newCheckbox.type = "checkbox";
+            newCheckbox.checked = noodleData[i][1][j];
+            // when flipped, flips the corresponding variable
+            newCheckbox.onclick = function () {
+                noodleData[i][1][j] = !(noodleData[i][1][j]);
+                update_length_sum();
+            }
+            checkboxesDiv.appendChild(newCheckbox)
+        }
+
+        // creates the allowImmediateTurns checkbox
+        let newCheckbox = document.createElement("input");
+        newCheckbox.type = "checkbox";
+        newCheckbox.checked = noodleData[i][3];
+        // when flipped, flips the corresponding variable
+        newCheckbox.onclick = function () {
+            noodleData[i][3] = !(noodleData[i][3]);
+        }
+        newNoodleBox.getElementsByClassName("noodleBoxSettings")[0].appendChild(newCheckbox);
+
+        // Updates usage count label to correct number
+        if (globalColourLengths.includes(noodleData[i][0])){
+            let colourIndex = globalColourLengths.indexOf(noodleData[i][0]);
+            newNoodleBox.getElementsByClassName("noodleBoxFinalisedCount")[0].innerHTML = "x" + String(globalColourCounts[colourIndex]);
+        }
+
+        // If its a 1 length block, removes unneccessary features
+        if (noodleData[i][0] == "1"){
+            newNoodleBox.getElementsByClassName("noodleBoxLength")[0].innerHTML = "";
+            newNoodleBox.getElementsByClassName("noodleBoxSettings")[0].innerHTML = "";
+            newNoodleBox.style.outlineColor = "white";
+        }
+    }
+}
+
+// runs when the generate button is pressed
+function gen_pressed() {
+    if (!generating){
+        // Starting the generation of the puzzle
+        let parameters = get_check_parameters();
+        if (parameters == false){
+            return;
+        }
+        globalPuzzlesGenerated = 0;
+        globalPuzzleQuota = parameters[4];
+        genWorker.postMessage(parameters);
+        generating = true;
+    }
+}
+
+function disable_turns_pressed() {
+    for (let i = 0; i < noodleData.length; i++){
+        noodleData[i][3] = false;
+    }
+    refresh_noodles();
+}
+
+// runs upon the "load" button being pressed
+// checks the preset drop down menu
+// if a saved preset with that name exists, loads it
+function load_pressed() {
+
+    // gets the name of the currently selected preset
+    let presetName = document.getElementById("presetSelect").value;
+
+    // gets the name (first element) of each saved preset
+    let presetNameList = savedPresets.map(x => x[0]);
+
+    if (presetNameList.includes(presetName)){
+        let presetIndex = presetNameList.indexOf(presetName);
+        // the second element of each savedPreset is the list of parameters
+        load_parameters(savedPresets[presetIndex][1]);
+    } else {
+        console.log("no such preset name exists!");
+    }
+}
+
+// runs when the save preset button is pressed
+// takes the current data and saves it to the name entered
+function save_pressed(){
+    console.log("saving!");
+    let nameEntry = document.getElementById("presetNameEntry").value;
+    if (nameEntry == ""){
+        document.getElementById("feedbackMessage").innerHTML = "Cant save preset: Please enter a name";
+        return;
+    }
+    if (nameEntry == "default"){
+        document.getElementById("feedbackMessage").innerHTML = "Cant save preset: Please do not enter default as the name";
+        return;
+    }
+    if (nameEntry.includes(",")){
+        document.getElementById("feedbackMessage").innerHTML = "Cant save preset: Please do not use commas in name";
+        return;
+    }
+
+    // gets parameters
+    // if these checks fail, return (dont save)
+    let parameters = get_parameters();
+    if (parameters == false){
+        return;
+    }
+
+    // structure of a preset:
+    // ["presetName", [[noodleData],int turning chance, [[2d grid array]], straight limit]]
+
+    // if all checks are passed:
+    
+    let presetToSave = [nameEntry,parameters];
+    // saves to file
+    save_preset(presetToSave);
+
+    // updates savedPresets and dropdown menu
+    update_presets();
+
+    // updates text to confirm save
+    document.getElementById("feedbackMessage").innerHTML = "Successfully saved preset!";
+}
+
+// saves the preset to local storage
+function save_preset(preset){
+    // format [presetName,[[[noodleData]],turning chance,[[2d grid array]],straight limit]]
+    let presetName = preset[0];
+
+    // if its a new preset name, adds it to the list of preset names
+    let presetNames = get_preset_names();
+
+    if (!presetNames.includes(presetName)) {
+        presetNames.push(presetName);
+        localStorage.setItem("presetNames",presetNames.toString());
+    }
+
+    // convert and save noodle data to local storage
+    // noodleDataString is separated by semicolons, then the list of booleans is separated by commas
+    let noodleDataString = "";
+    let presetNoodleData = preset[1][0];
+    for (let i = 0; i < presetNoodleData.length; i++){
+        // the single element of noodleData corresponding to a length
+        // [length int, [array of booleans], colour string]
+        let presetLengthData = presetNoodleData[i];
+        // this array converted to a string
+        let lengthDataString = "";
+        // adds the length to the string
+        lengthDataString = lengthDataString + String(presetLengthData[0]) + ";";
+        // adds the list of booleans to the string
+        let boolListString = "";
+        for (let j = 0; j < presetLengthData[1].length; j++){
+            boolListString = boolListString + String(presetLengthData[1][j]) + ",";
+        }
+        // cuts off the last comma since its not separating 2 elements
+        boolListString = boolListString.slice(0,-1);
+        // add the bool list string to the string for this length
+        lengthDataString = lengthDataString + boolListString + ";";
+        // adds the colour to the string
+        lengthDataString = lengthDataString + presetLengthData[2] + ";";
+        // adds the allowImmediateTurns bool to the string
+        lengthDataString = lengthDataString + String(presetLengthData[3]);
+
+        // adds this length to the noodleData string, separated by full stops
+        noodleDataString = noodleDataString + lengthDataString + ".";
+    }
+    // cuts off last unused full stop
+    noodleDataString = noodleDataString.slice(0,-1);
+    
+    // saves to local storage
+    localStorage.setItem(presetName + "noodleData",noodleDataString);
+
+    // save turning chance to local storage
+    localStorage.setItem(presetName + "turnChance", String(preset[1][1]));
+
+    // convert and save the 2d grid to local storage
+    // gridString separates by semicolon, then separates subarrays by commas
+    let gridString = grid_to_string(preset[1][2]);
+    localStorage.setItem(presetName + "gridArray",gridString);
+
+    // save the straight limit to local storage
+    localStorage.setItem(presetName + "straightLimit",String(preset[1][3]));
+}
+
+
+
+
+// reads a preset from the local storage and returns it
+function read_preset(presetName) {
+    // format [presetName,[[[noodleData]],turning chance,[[2d grid array]],straight limit]]
+    let newPreset = [presetName,[]];
+
+    // get noodleData
+    // noodleData has format:
+    // ARRAY OF ELEMENTS of format [noodle length int, [list of noodle activation status booleans], noodle colour string, allowImmediateTurns boolean]
+    let rawNoodleDataArray = localStorage.getItem(presetName + "noodleData").split(".");
+    let presetNoodleData = [];
+
+    // for each noodle length
+    for (let i = 0; i < rawNoodleDataArray.length; i++){
+
+        // the single length's array that will be pushed to the new noodleData
+        let presetLengthData = [];
+
+        // the split string corresponding to a single length's data
+        let rawLengthArray = rawNoodleDataArray[i].split(";");
+
+        // adds length integer
+        presetLengthData.push(parseInt(rawLengthArray[0]));
+
+        // adds list of activation booleans
+        let boolList = [];
+        let boolStrings = rawLengthArray[1].split(",");
+        for (let j = 0; j < boolStrings.length; j++){
+            boolList.push(boolStrings[j] == "true");
+        }
+        presetLengthData.push(boolList);
+
+        // adds noodle colour string
+        presetLengthData.push(rawLengthArray[2]);
+
+        // adds allowImmediateTurns boolean
+        // if there is no data saved, adds true (so allows immediate turns)
+        if (rawLengthArray.length < 4){
+            presetLengthData.push(true);
+        } else {
+            presetLengthData.push(rawLengthArray[3] == "true");
+        }
+        
+        // pushes to new noodleData array
+        presetNoodleData.push(presetLengthData);
+    }
+    
+    // adds noodle data to preset to return
+    newPreset[1].push(presetNoodleData);
+
+    // get turn chance
+    newPreset[1].push(parseFloat(localStorage.getItem(presetName + "turnChance")));
+
+    // get 2d grid array
+    let gridString = localStorage.getItem(presetName + "gridArray");
+    let newGrid = string_to_grid(gridString);
+    newPreset[1].push(newGrid);
+
+    // get straight limit (integer)
+    newPreset[1].push(parseInt(localStorage.getItem(presetName + "straightLimit")));
+
+    return newPreset;
+}
+
+// runs when one of the tiles in the grid editor is clicked
+// swaps the tile from grey to black (or vice versa) and edits initGrid to block/allow that tile
+function setting_tile_clicked(row,column){
+    if (initGrid[row+1][column+1] == " ") {
+        initGrid[row+1][column+1] = "X";
+        settingsGridElements[row][column].style.backgroundColor = "black";
+        // subtracts 1 from the sum of empty tiles tracker
+        document.getElementById("emptyTileSum").innerHTML = String(parseInt(document.getElementById("emptyTileSum").innerHTML) - 1);
+    } else {
+        initGrid[row+1][column+1] = " ";
+        settingsGridElements[row][column].style.backgroundColor = "lightgrey";
+        // adds 1 to the sum of empty tiles tracker
+        document.getElementById("emptyTileSum").innerHTML = String(parseInt(document.getElementById("emptyTileSum").innerHTML) + 1);
+    }
+}
+
+// updates the html text display showing the sum of the lengths of activated noodles
+function update_length_sum(){
+    // gets list of lengths of activated noodles
+    let lengthList = get_length_list();
+    // if theres more than 20 noodles activated, updates the display with a corresponding error
+    if (lengthList.length > 20){
+        document.getElementById("feedbackMessage").innerHTML = "Error: Cannot use more than 20 lengths";
+        return;
+    }
+    // counts the sum
+    let sum = 0;
+    for (let i = 0; i < lengthList.length; i++){
+        sum = sum + lengthList[i];
+    }
+    // updates the display with the sum
+    document.getElementById("lengthSum").innerHTML = String(sum);
+}
+
+// returns a list of the lengths of all the noodles currently selected
+// uses the noodleData variable
+function get_length_list(){
+    let lengthList = [];
+    // for each length
+    for (let i = 0; i < noodleData.length; i++){
+        // for each boolean noodle for that length
+        for (let j = 0; j < noodleData[i][1].length; j++){
+            // if its activated, adds its length to the list
+            if (noodleData[i][1][j] == true){
+                lengthList.push(noodleData[i][0]);
+            }
+        }
+    }
+    return lengthList;
+}
+
+
+
+// gets the current genParams and returns it
+// also used to save layouts to load them later
+function get_check_parameters(){
+    // Checking length data to see if it is valid
+    let lengthList = get_length_list();
+    if (lengthList.length > 20){
+        document.getElementById("feedbackMessage").innerHTML = "Error: Too many lengths";
+        console.log("Error: Too many lengths");
+        return false;
+    }
+    for (let i = 0; i < lengthList.length; i++){
+        if (isNaN(lengthList[i])){
+            console.log(lengthList[i]);
+            document.getElementById("feedbackMessage").innerHTML = "Error: Non numbers found in lengths";
+            console.log("Error: Non numbers found in lengths");
+            return false;
+        }
+        lengthList[i] = Number(lengthList[i]);
+    }
+    if (!lengths_fill_gaps(count_gaps(initGrid),lengthList)){
+        document.getElementById("feedbackMessage").innerHTML = "Error: Cannot fill grid layout with current lengths";
+        console.log("Error: Cannot fill grid layout with current lengths");
+        return false;
+    }
+    // Checking turning chance data to see if it is valid
+    let turnData = document.getElementById("turnChanceEntry").value;
+    turnData = turnData.replaceAll(" ","");
+    if (isNaN(turnData)) {
+        document.getElementById("feedbackMessage").innerHTML = "Error: Non numbers found in turning chance";
+        return false;
+    }
+    if ((turnData < 0) || (turnData > 1)) {
+        document.getElementById("feedbackMessage").innerHTML = "Error: Turning Chance not between 0 and 1";
+        return false;
+    }
+    
+    // getting straightLimit data
+    let straightLimit = document.getElementById("straightLimitEntry").value;
+    straightLimit = parseInt(straightLimit);
+    if (isNaN(straightLimit)) {
+        straightLimit = 82; //ie, no limit
+    }
+
+    // Checking puzzleQuota data to see if it is valid
+    let puzzleQuota = document.getElementById("generateCountEntry").value;
+    puzzleQuota = puzzleQuota.replaceAll(" ","");
+    if (isNaN(parseInt(puzzleQuota)) || parseInt(puzzleQuota) <= 0) {
+        document.getElementById("feedbackMessage").innerHTML = "Error: Invalid amount of puzzles to generate";
+        return false;
+    }
+
+    return [noodleData,parseFloat(turnData),initGrid,straightLimit,parseInt(puzzleQuota)];
+}
+
+// version of get_check_parameters that is less restrictive on generate-able inputs, used for getting parameters to save
+function get_parameters(){
+    // get length list 
+    let lengthList = get_length_list();
+
+    // Checking turning chance data to see if it is valid
+    let turnData = document.getElementById("turnChanceEntry").value;
+    turnData = turnData.replaceAll(" ","");
+    if (isNaN(turnData)) {
+        document.getElementById("feedbackMessage").innerHTML = "Error: Non numbers found in turning chance";
+        return false;
+    }
+    if ((turnData < 0) || (turnData > 1)) {
+        document.getElementById("feedbackMessage").innerHTML = "Error: Turning Chance not between 0 and 1";
+        return false;
+    }
+    
+    // getting straightLimit data
+    let straightLimit = document.getElementById("straightLimitEntry").value;
+    straightLimit = parseInt(straightLimit);
+    if (isNaN(straightLimit)) {
+        straightLimit = 82; //ie, no limit
+    }
+
+    return [noodleData,parseFloat(turnData),initGrid,straightLimit];
+}
+
+function load_parameters(inputParams){
+    let turnData = inputParams[1];
+    let newGrid = inputParams[2];
+    let straightLimit = inputParams[3];
+
+    // updates noodleData
+    noodleData = structuredClone(inputParams[0]);
+
+    // updating turning chance
+    document.getElementById("turnChanceEntry").value = String(turnData);
+
+    // updating grid and empty tiles tracker
+    update_grid(newGrid);
+
+    // updating straight line limit
+    document.getElementById("straightLimitEntry").value = String(straightLimit);
+
+    // updates the noodle display and length sum
+    refresh_noodles();
+    update_length_sum();
+}
+
+// takes a new grid
+// updates the grid editor to be the new one
+// changes the tile colours and empty tile count to be the new one
+function update_grid(newGrid){
+    let icons = ["X"," "];
+    let colours = ["black","lightgrey"];
+    let sumDiff = [-1,1];
+    for (let i = 1; i <= 9; i++){
+        for (let j = 1; j <= 9; j++){
+            if (initGrid[i][j] != newGrid[i][j]){
+                let newColour = colours[icons.indexOf(newGrid[i][j])];
+                // sets tile colour to the new one
+                settingsGridElements[i-1][j-1].style.backgroundColor = newColour;
+                // adds or subtracts from sum depending on new one
+                document.getElementById("emptyTileSum").innerHTML = String(parseInt(document.getElementById("emptyTileSum").innerHTML) + sumDiff[icons.indexOf(newGrid[i][j])]);
+            }
+        }
+    }
+    initGrid = newGrid;
+}
+
+
+
+
+
+// creates html objects for displaying the puzzle solution and adds them to the document
+
+// puzzle is an object with parameters
+// solvedGrid - 11x11 2d array with icons of the SOLVED grid
+// noodles - array of noodle objects used to fill the grid
+// genParams - the parameters used to generate the puzzle
+// where finalNoodles is an array of Noodle objects
+function display_new_puzzle(puzzle,puzzleId){
+
+    // unique identifier for which puzzle it is
+    // starts at 0, increases for each generated
+    let puzzleNum = activePuzzles.length;
+
+    // adds small gap before displaying grid
+    document.body.appendChild(document.createElement("br"));
+    document.body.appendChild(document.createElement("br"));
+
+    // text giving the number of the puzzle
+    let puzzleTitle = document.createElement("div");
+    puzzleTitle.className = "puzzleTitle";
+    puzzleTitle.innerHTML = "Puzzle " + String(puzzleNum + 1);
+    document.body.appendChild(puzzleTitle);
+
+    // div that contains the grid of tiles
+    let gridContainer = document.createElement("div");
+    document.body.appendChild(gridContainer);
+
+    // creating the grid of tiles
+    let newElementGrid = display_grid(puzzle,gridContainer);
+
+    // creates centred div to store puzzle options in
+    let centreDiv = document.createElement("div");
+    centreDiv.className = "centre";
+    document.body.appendChild(centreDiv);
+
+    // creating the toggle solution button
+    let solButton = document.createElement("button");
+    solButton.innerHTML = "Toggle Solution";
+    solButton.className = "solutionButton";
+    solButton.onclick = function () {
+        show_sol_pressed(puzzleNum);
+    }
+    centreDiv.appendChild(solButton);
+
+
+    // creating the save puzzle row
+    let saveRow = document.createElement("div");
+    saveRow.className = "centreRow";
+    saveRow.innerHTML = "Save Puzzle:";
+    centreDiv.appendChild(saveRow);
+
+    // creating the save buttons
+    let difficulties = ["Tutorial", "Easy", "Medium", "Hard"];
+    for (let i = 0; i < difficulties.length; i++){
+        let saveButton = document.createElement("button");
+        saveButton.innerHTML = difficulties[i];
+        saveButton.className = "saveButton";
+        saveButton.onclick = function () {
+            save_sol_pressed(puzzleNum,difficulties[i]);
+        }
+        saveRow.appendChild(saveButton);
+    }
+
+
+    // adds to the list of puzzles currently being displayed
+    activePuzzles.push([false,puzzle,newElementGrid,solButton,saveRow,puzzleId]);
+
+    document.body.appendChild(document.createElement("br"));
+    document.body.appendChild(document.createElement("br"));
+}
+
+function save_sol_pressed(puzzleNum,difficulty){
+
+    // replaces the buttons with success text
+    activePuzzles[puzzleNum][4].innerHTML = "Saved! (" + difficulty + ")";
+
+    // updates the corresponding row in the database
+    let puzzleId = activePuzzles[puzzleNum][5];
+    save_puzzle(puzzleId, difficulty, true);
+}
+
+// creates html grid elements and appends them to the given containerDiv
+// returns 2d array with every object created
+// takes puzzle object and a html div to append to
+// fills it with the UNSOLVED puzzle
+function display_grid(puzzle, containerDiv){
+
+    // div that contains all the tile elements
+    let gridElement = document.createElement("div");
+    gridElement.className = "puzzleGrid";
+
+    // adds the grid to the container
+    containerDiv.appendChild(gridElement);
+
+    // 2d array container containing all elements
+    // same format as grid
+    let newElementGrid = [];
+    for (let i = 0; i < 9; i++){
+        let newRow = [];
+        for (let j = 0; j < 9; j++){
+            newRow.push(document.createElement("div"));
+            newRow[j].className = "tile";
+            // makes it black if the tile is "X" (not in puzzle), grey otherwise
+            if (puzzle.solvedGrid[i+1][j+1] == "X"){
+                newRow[j].style.backgroundColor = "black";
+            } else {
+                newRow[j].style.backgroundColor = "lightgrey";
+            }
+            gridElement.appendChild(newRow[j]);
+
+        }
+        newElementGrid.push(newRow);
+    }
+
+    // colouring in the noodle starts and ends with the corresponding colour
+    for (let i = 0; i < puzzle.noodles.length; i++){
+        let noodle = puzzle.noodles[i];
+        let start = noodle.start;
+        let end = noodle.end;
+        // -1 because need to convert from 1-9 index in 11x11 grid to 0-8 array
+        newElementGrid[start[0]-1][start[1]-1].style.backgroundColor = noodle.colour;
+        newElementGrid[start[0]-1][start[1]-1].innerHTML = String(noodle.length);
+        newElementGrid[end[0]-1][end[1]-1].style.backgroundColor = noodle.colour;
+        newElementGrid[end[0]-1][end[1]-1].innerHTML = String(noodle.length);
+    }
+
+    return newElementGrid;
+}
+
+function show_sol_pressed (puzzleNum){
+    //console.log(puzzleNum);
+    let puzzleData = activePuzzles[puzzleNum]; // [solutionShowing (true/false), puzzle, elementGrid, button object]
+    let solutionGrid = puzzleData[1].solvedGrid;
+    let elementGrid = puzzleData[2];
+    let noodleList = puzzleData[1].noodles;
+    // if the solution IS NOT currently being showed
+    if (puzzleData[0] == false) {
+        console.log("Showing solution...");
+        activePuzzles[puzzleNum][0] = true;
+        // replace shown grid with solution grid
+        // note going 0-8, but solution grid uses 1-9 so +1s included later
+        for (let i = 0; i < 9; i++){
+            for (let j = 0; j < 9; j++){
+
+                // each string in the grid starts with a number to say which order they're in
+                let tileNum = parseInt(solutionGrid[i+1][j+1]);
+
+                // removes number to get the icon
+                let tileIcon = solutionGrid[i+1][j+1].replace(/[0-9]/g, '');
+
+                // sets the colour of the tile to be the corresponding colour of the noodle with that icon
+                if (tileIcon != "X"){
+                    let tileColour = noodleList[noodleList.map(x => x.icon).indexOf(tileIcon)].colour;
+                    elementGrid[i][j].style.backgroundColor = tileColour;
+                }
+                
+                // checking adjacent tiles to see what string it should contain
+                let adjacentTiles = get_adjacent(solutionGrid,i+1,j+1);
+
+                // contains two numbers based off where the noodle went before and after the current tile
+                // 4 is default value and will only remain if it is the start or end
+                // 0 = down, 1 = up, 2 = right, 3 = left
+                let beforeAfter = [4,4];
+                for (let k = 0; k < 4; k++){
+
+                    // if the tile is the same noodle (icon)
+                    if (adjacentTiles[k].replace(/[0-9]/g, '') == tileIcon){
+
+                        // checks for tiles before or after in the noodle
+                        if (parseInt(adjacentTiles[k]) == (tileNum-1)){
+                            beforeAfter[0] = k;
+                        } else if (parseInt(adjacentTiles[k]) == (tileNum+1)){
+                            beforeAfter[1] = k;
+                        }
+                    }
+                }
+
+                // if it IS the start or end of a noodle
+                // sets string to the noodles length
+                if (beforeAfter.includes(4)) {
+                    for (let k = 1; k < noodleList.length; k++){
+                        if (noodleList[k].icon == tileIcon){
+                            elementGrid[i][j].innerHTML = String(noodleList[k].length);
+                        }
+                    }
+
+                // if it IS NOT the start or the end, looks up the corresponding line to draw
+                // sets the inner html to that string
+                } else {
+
+                    // array that correlates beforeAfter to a unicode symbol with the right line
+                    let correspondingStrings = [[[0,1],"&#x2502"],[[0,2],"&#x250C"],[[0,3],"&#x2510"],[[1,0],"&#x2502"],[[1,2],"&#x2514"],[[1,3],"&#x2518"],[[2,0],"&#x250C"],[[2,1],"&#x2514"],[[2,3],"&#x2500"],[[3,0],"&#x2510"],[[3,1],"&#x2518"],[[3,2],"&#x2500"]];
+                    
+                    // loops through each possible line
+                    for (let k = 0; k < 12; k++){
+                        if (are_arrays_equal(beforeAfter,correspondingStrings[k][0])){
+                            elementGrid[i][j].innerHTML = correspondingStrings[k][1];
+                        }
+                    }
+                }
+            }
+        }
+    // if the solution IS currently being showed
+    } else {
+        console.log("Showing puzzle...");
+        // clear all tiles in the grid
+        for (let i = 0; i < 9; i++){
+            for (let j = 0; j < 9; j++){
+                if (solutionGrid[i+1][j+1] == "X"){
+                    elementGrid[i][j].style.backgroundColor = "black";
+                } else {
+                    elementGrid[i][j].style.backgroundColor = "lightgrey";
+                }
+                elementGrid[i][j].innerHTML = "";
+            }
+        }
+        // for each noodle, fill the start and end
+        for (let i = 0; i < noodleList.length; i++){
+            let noodle = noodleList[i];
+            let start = noodle.start;
+            let end = noodle.end;
+            // note -1 because need to convert from string grid 1-9 to element grid 0-8
+            elementGrid[start[0]-1][start[1]-1].style.backgroundColor = noodle.colour;
+            elementGrid[start[0]-1][start[1]-1].innerHTML = String(noodle.length);
+            elementGrid[end[0]-1][end[1]-1].style.backgroundColor = noodle.colour;
+            elementGrid[end[0]-1][end[1]-1].innerHTML = String(noodle.length);
+        }
+        
+
+
+
+        activePuzzles[puzzleNum][0] = false;
+    }
+}
+
+
+</script>
+</body>
+</html>
