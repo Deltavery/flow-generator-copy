@@ -4,16 +4,16 @@ const dataObject = supabase.createClient("https://bjupfqvkdhjqossdulfm.supabase.
 
 // -----===== FUNCTIONS =====-----
 
-// adds the puzzle to the "puzzles" and "noodles" databases
+// adds the puzzle to the "puzzles_copy" and "noodles_copy" databases
 // puzzle is an array [solved grid, array of noodle objects]
 async function insert_puzzle(puzzle){
 
     // 2d array for the puzzles completed grid 
     const newGrid = grid_to_string(puzzle.solvedGrid);
 
-    // inserts row for this grid to the "puzzles" database
+    // inserts row for this grid to the "puzzles_copy" database
     // note id, saved, approvals have default values
-    const { data, error } = await dataObject.from("puzzles").insert({
+    const { data, error } = await dataObject.from("puzzles_copy").insert({
         grid: newGrid,
     }).select();
 
@@ -22,17 +22,17 @@ async function insert_puzzle(puzzle){
     let puzzleId = data[0].puzzleid;
 
     // set the default ordering to be the puzzle ID
-    const { orderingError } = await dataObject.from("puzzles").update({
+    const { orderingError } = await dataObject.from("puzzles_copy").update({
         ordernum: puzzleId
     }).eq("puzzleid", puzzleId);
 
     console.log(orderingError);
 
-    // inserting rows for each noodle to "noodles" database
+    // inserting rows for each noodle to "noodles_copy" database
     let noodles = puzzle.noodles;
     for (let i = 0; i < noodles.length; i++){
         let noodle = noodles[i];
-        const { error } = await dataObject.from("noodles").insert({
+        const { error } = await dataObject.from("noodles_copy").insert({
             startx: noodle.start[0],
             starty: noodle.start[1],
             endx: noodle.end[0],
@@ -48,7 +48,7 @@ async function insert_puzzle(puzzle){
     return puzzleId;
 }
 
-// updates the difficulty and saved value of a puzzle in the "puzzles" database
+// updates the difficulty and saved value of a puzzle in the "puzzles_copy" database
 async function save_puzzle(puzzleIdPromise, newDifficulty, newSaved = false){
 
     let puzzleId = await puzzleIdPromise;
@@ -56,7 +56,7 @@ async function save_puzzle(puzzleIdPromise, newDifficulty, newSaved = false){
     // updates saved and difficulty columns
     // to the row with the corresponding ID
     
-    const { error } = await dataObject.from("puzzles").update({
+    const { error } = await dataObject.from("puzzles_copy").update({
         saved: newSaved,
         difficulty: newDifficulty
     }).eq("puzzleid", puzzleId);
@@ -66,7 +66,7 @@ async function save_puzzle(puzzleIdPromise, newDifficulty, newSaved = false){
 // updates the finalised status of the given puzzle in the database to the new value
 async function finalise_puzzle(puzzleId, newFinalised = true){
     
-    const { error } = await dataObject.from("puzzles").update({
+    const { error } = await dataObject.from("puzzles_copy").update({
         finalised: newFinalised
     }).eq("puzzleid", puzzleId);
 
@@ -75,7 +75,7 @@ async function finalise_puzzle(puzzleId, newFinalised = true){
 // updates the saved status of the given puzzle to false
 async function delete_puzzle(puzzleId){
     
-    const { error } = await dataObject.from("puzzles").update({
+    const { error } = await dataObject.from("puzzles_copy").update({
         saved: false
     }).eq("puzzleid", puzzleId);
 
@@ -85,7 +85,7 @@ async function delete_puzzle(puzzleId){
 // and resets difficultyvotes
 async function update_puzzle_difficulty(puzzleId, newDifficulty){
     
-    const { error } = await dataObject.from("puzzles").update({
+    const { error } = await dataObject.from("puzzles_copy").update({
         difficulty: newDifficulty,
         difficultyvotes: ""
     }).eq("puzzleid", puzzleId);
@@ -95,7 +95,7 @@ async function update_puzzle_difficulty(puzzleId, newDifficulty){
 // updates the ratings of a puzzle
 async function update_puzzle_ratings(puzzleId, newRatings){
     
-    const { error } = await dataObject.from("puzzles").update({
+    const { error } = await dataObject.from("puzzles_copy").update({
         ratings: newRatings
     }).eq("puzzleid", puzzleId);
 
@@ -105,11 +105,11 @@ async function update_puzzle_ratings(puzzleId, newRatings){
 async function add_puzzle_rating(puzzleId, newRating){
 
     // gets the current puzzle rating
-    const { data, error } = await dataObject.from("puzzles").select().eq("puzzleid",puzzleId);
+    const { data, error } = await dataObject.from("puzzles_copy").select().eq("puzzleid",puzzleId);
 
     let newRatings = data[0].ratings + "," + newRating;
 
-    const { error: error2 } = await dataObject.from("puzzles").update({
+    const { error: error2 } = await dataObject.from("puzzles_copy").update({
         ratings: newRatings
     }).eq("puzzleid", puzzleId);
 
@@ -119,14 +119,14 @@ async function add_puzzle_rating(puzzleId, newRating){
 async function remove_puzzle_rating(puzzleId, rating){
 
     // gets the current puzzle ratings
-    const { data, error } = await dataObject.from("puzzles").select().eq("puzzleid",puzzleId);
+    const { data, error } = await dataObject.from("puzzles_copy").select().eq("puzzleid",puzzleId);
 
     let prevRatings = data[0].ratings.split(",");
 
     prevRatings.splice(prevRatings.indexOf(rating),1);
     let newRatings = String(prevRatings);
 
-    const { error: error2 } = await dataObject.from("puzzles").update({
+    const { error: error2 } = await dataObject.from("puzzles_copy").update({
         ratings: newRatings
     }).eq("puzzleid", puzzleId);
 
@@ -135,7 +135,7 @@ async function remove_puzzle_rating(puzzleId, rating){
 // gets the difficultyvotes string of a puzzle
 async function get_puzzle_difficultyvotes(puzzleId){
 
-    const { data, error } = await dataObject.from("puzzles").select().eq("puzzleid",puzzleId);
+    const { data, error } = await dataObject.from("puzzles_copy").select().eq("puzzleid",puzzleId);
 
     return data[0].difficultyvotes;
 
@@ -144,7 +144,7 @@ async function get_puzzle_difficultyvotes(puzzleId){
 // updates the difficultyvotes column of a puzzle
 async function update_puzzle_difficultyvotes(puzzleId, newDifficultyvotes){
     
-    const { error } = await dataObject.from("puzzles").update({
+    const { error } = await dataObject.from("puzzles_copy").update({
         difficultyvotes: newDifficultyvotes
     }).eq("puzzleid", puzzleId);
 
@@ -153,7 +153,7 @@ async function update_puzzle_difficultyvotes(puzzleId, newDifficultyvotes){
 // updates the orderNum column of a puzzle
 async function update_puzzle_ordernum(puzzleId, newOrderNum){
     
-    const { error } = await dataObject.from("puzzles").update({
+    const { error } = await dataObject.from("puzzles_copy").update({
         ordernum: newOrderNum
     }).eq("puzzleid", puzzleId);
 
@@ -166,9 +166,9 @@ async function get_puzzles_of_difficulty(difficulty){
 
     let returnArray = [];
 
-    // gets an array of (saved) data objects (of the given difficulty) from "puzzles"
+    // gets an array of (saved) data objects (of the given difficulty) from "puzzles_copy"
     // with attributes puzzleid, grid, ratings, finalised
-    const { data, error } = await dataObject.from("puzzles").select().eq("saved",true).eq("difficulty",difficulty);
+    const { data, error } = await dataObject.from("puzzles_copy").select().eq("saved",true).eq("difficulty",difficulty);
 
     if (data == null){
         return [];
@@ -180,9 +180,9 @@ async function get_puzzles_of_difficulty(difficulty){
         return [];
     }
     
-    // gets an array of data objects (for the puzzles fetched) from "noodles"
+    // gets an array of data objects (for the puzzles fetched) from "noodles_copy"
     // with attributes startx, starty, endx, endy, icon, length, colour, puzzle
-    const { data:noodleData, error:noodleError } = await dataObject.from("noodles").select().in("puzzle",data.map(x => x.puzzleid)); 
+    const { data:noodleData, error:noodleError } = await dataObject.from("noodles_copy").select().in("puzzle",data.map(x => x.puzzleid)); 
 
     for (let i = 0; i < data.length; i++) {
 
